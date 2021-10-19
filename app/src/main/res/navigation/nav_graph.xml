@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.example.tpn.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_first">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_to_SelectFragment"
+            app:destination="@id/SelectFragment" />
+        <action
+            android:id="@+id/action_to_CameraFragment"
+            app:destination="@id/CameraFragment" />
+        <action
+            android:id="@+id/action_to_LoadModelFragment"
+            app:destination="@id/LoadModelFragment" />
+        <action
+            android:id="@+id/action_to_ResultFragment"
+            app:destination="@id/ResultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/CameraFragment"
+        android:name="com.example.tpn.CameraFragment"
+        android:label="Camera Fragment"
+        tools:layout="@layout/camera_fragment">
+
+        <action
+            android:id="@+id/action_take_photo"
+            app:destination="@id/ResultFragment" />
+        <action
+            android:id="@+id/action_to_menu"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/LoadModelFragment"
+        android:name="com.example.tpn.LoadModelFragment"
+        android:label="Load Model Fragment"
+        tools:layout="@layout/load_model_fragment">
+
+        <action
+            android:id="@+id/action_to_menu"
+            app:destination="@id/FirstFragment" />
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/ResultFragment"
+        android:name="com.example.tpn.ResultFragment"
+        android:label="Result Fragment"
+        tools:layout="@layout/result_fragment">
+
+        <action
+            android:id="@+id/action_to_menu"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SelectFragment"
+        android:name="com.example.tpn.SelectFragment"
+        android:label="Select Fragment"
+        tools:layout="@layout/select_fragment">
+
+        <action
+            android:id="@+id/action_to_menu"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SecondFragment"
+        android:name="com.example.tpn.SecondFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_second">
+
+        <action
+            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+
+    </fragment>
+</navigation>
