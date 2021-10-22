@@ -47,6 +47,8 @@ public class ResultFragment extends Fragment {
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        ((MainActivity)getActivity()).makePrediction();
+        show();
         super.onViewCreated(view, savedInstanceState);
         binding.check.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -23,5 +23,9 @@ public class Model {
         return interpreter;
     }
 
+    public String getLabel(int i){
+        return "tuuuu";
+    }
+
 
 }

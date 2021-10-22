@@ -18,14 +18,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
+import androidx.camera.extensions.HdrImageCaptureExtender;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -35,12 +46,15 @@ import androidx.viewpager.widget.ViewPager;
 
 
 import com.example.tpn.databinding.ActivityMainBinding;
+import com.google.common.io.ByteStreams;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -51,19 +65,31 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import android.Manifest.permission.*;
 import android.Manifest.permission_group.*;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+
+import static android.content.res.AssetManager.ACCESS_BUFFER;
+import static android.os.ParcelFileDescriptor.MODE_READ_ONLY;
+import static androidx.camera.core.CameraX.getContext;
 //import android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
@@ -79,6 +105,61 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private ListView list;
     private ArrayList<String> arrayList;
+    private Executor executor = Executors.newSingleThreadExecutor();
+
+    PreviewView mPreviewView;
+
+
+    public void startCamera(PreviewView pview) {
+        mPreviewView = pview;
+        final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+
+        cameraProviderFuture.addListener(new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+                    ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                    bindPreview(cameraProvider);
+
+                } catch (ExecutionException | InterruptedException e) {
+                    // No errors need to be handled for this Future.
+                    // This should never be reached.
+                }
+            }
+        }, ContextCompat.getMainExecutor(this));
+    }
+
+    void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
+
+        Preview preview = new Preview.Builder()
+                .build();
+
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .build();
+
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .build();
+
+        ImageCapture.Builder builder = new ImageCapture.Builder();
+
+        //Vendor-Extensions (The CameraX extensions dependency in build.gradle)
+        HdrImageCaptureExtender hdrImageCaptureExtender = HdrImageCaptureExtender.create(builder);
+
+        // Query if extension is available (optional).
+        if (hdrImageCaptureExtender.isExtensionAvailable(cameraSelector)) {
+            // Enable the extension if available.
+            hdrImageCaptureExtender.enableExtension(cameraSelector);
+        }
+
+        final ImageCapture imageCapture = builder
+                .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
+                .build();
+        preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis, imageCapture);
+
+    }
 
     public void pick(){
         new MaterialFilePicker()
@@ -103,12 +184,38 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
+    static int[] indexesOfTopElements(float[] orig, int nummax) {
+        float[] copy = Arrays.copyOf(orig,orig.length);
+        Arrays.sort(copy);
+        float[] honey = Arrays.copyOfRange(copy,copy.length - nummax, copy.length);
+        int[] result = new int[nummax];
+        int resultPos = 0;
+        for(int i = 0; i < orig.length; i++) {
+            float onTrial = orig[i];
+            int index = Arrays.binarySearch(honey,onTrial);
+            if(index < 0) continue;
+            result[resultPos++] = i;
+        }
+        return result;
+    }
+
 
     public void makePrediction(){
-        TensorBuffer probabilityBuffer = TensorBuffer.createFixedSize(new int[]{1, 1001}, DataType.FLOAT32);
         float[][] buf = new float[1][285];
         ByteBuffer buffer = TensorImage.fromBitmap(currentBitmap).getBuffer();
         models.get(indexOfCurrentModel).getInterpreter().run(buffer,buf);
+        int[] top = indexesOfTopElements(buf[0],5);
+        int[] images = new int[5];
+        String[] labels = new String[5];
+        for(int i=0;i<5;i++){
+            int j = top[i];
+            images[i] = getResources().getIdentifier("d"+(j+1), "drawable", getPackageName());
+            labels[i] = models.get(indexOfCurrentModel).getLabel(j);
+        }
+        CustomSwipeAdapter.image_resource = images;
+        CustomSwipeAdapter.labels = labels;
+
+
     }
 
     @Override
@@ -143,6 +250,28 @@ public class MainActivity extends AppCompatActivity {
         ((ListView)view).setAdapter(adapter);
     }
 
+
+    private void copyToCacheFile(final String assetPath, final File cacheFile) throws IOException
+    {
+        final InputStream inputStream = getAssets().open(assetPath, ACCESS_BUFFER);
+        try
+        {
+            final FileOutputStream fileOutputStream = new FileOutputStream(cacheFile, false);
+            try
+            {
+                //using Guava IO lib to copy the streams, but could also do it manually
+                ByteStreams.copy(inputStream, fileOutputStream);
+            }
+            finally
+            {
+                fileOutputStream.close();
+            }
+        }
+        finally
+        {
+            inputStream.close();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,8 +286,15 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         try {
-            models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", ManifestParser.loadManifestFromAssets(getAssets().openFd("manifest.json"))));
-            models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",ManifestParser.loadManifestFromAssets(getAssets().openFd("manifest.json"))));
+            String assetPath = "manifest.json";
+            final File cacheFile = new File(getCacheDir(), assetPath);
+            cacheFile.getParentFile().mkdirs();
+            copyToCacheFile(assetPath, cacheFile);
+            AssetFileDescriptor assetFileDescriptor = new AssetFileDescriptor(ParcelFileDescriptor.open(cacheFile, MODE_READ_ONLY), 0, -1);//getAssets().openFd("file:///android_asset/manifest.json");
+            System.out.println("WEEEEEEEEEE");
+            String jsonTxt = IOUtils.toString(assetFileDescriptor.createInputStream(), StandardCharsets.UTF_8);
+            models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", ManifestParser.loadManifestFromString(jsonTxt)));
+            models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",ManifestParser.loadManifestFromString(jsonTxt)));
         } catch (Exception e) {
             System.out.println("HERE");
             e.printStackTrace();

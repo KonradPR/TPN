@@ -35,12 +35,7 @@ import java.util.concurrent.Executors;
 public class CameraFragment extends Fragment {
 
     private CameraFragmentBinding binding;
-    private Executor cameraExecutor;
-    private ImageCapture imageCapture;
-    private Preview preview;
-    private Camera camera;
-    private Bitmap bitmap;
-    private boolean isBinded = false;
+
 
 
     public CameraFragment() {
@@ -60,70 +55,9 @@ public class CameraFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(!isBinded) {
-            binding.viewCamera.bindToLifecycle(CameraFragment.this);
-            binding.cameraCaptureButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    {
-                        takePhoto();
-                        NavHostFragment.findNavController(CameraFragment.this)
-                                .navigate(R.id.action_take_photo);
-                    }
-                }
-            });
-            cameraExecutor = Executors.newSingleThreadExecutor();
-            isBinded = true;
-            startCamera();
-        }
-    }
-
-    public void startCamera(){
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
-
-        cameraProviderFuture.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                    preview = new Preview.Builder().build();
-
-                    imageCapture = new ImageCapture.Builder()
-                            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                            .setTargetResolution(new Size(224, 224)) // Margaret set target resolution to 512x512
-                            .build();
-
-                    CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
-
-                    cameraProvider.unbindAll();
-
-                    camera = cameraProvider.bindToLifecycle(CameraFragment.this, cameraSelector, preview, imageCapture);
-
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, ContextCompat.getMainExecutor(requireContext()));
+        ((MainActivity)getActivity()).startCamera(binding.camera);
 
     }
 
-    public void takePhoto(){
-       imageCapture.takePicture(cameraExecutor,
-               new androidx.camera.core.ImageCapture.OnImageCapturedCallback(){
-                    @Override
-                    public void onCaptureSuccess(ImageProxy image){
-                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        buffer.rewind();
-                        byte[] bytes = new byte[]{(byte) buffer.remaining()};
-                        buffer.get(bytes);
-                        ((MainActivity)getActivity()).setCurrentBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null));
-                        NavHostFragment.findNavController(CameraFragment.this)
-                                .navigate(R.id.action_take_photo);
-                    }
-                   @Override
-                   public void onError(ImageCaptureException exception) {}
-               });
-    }
+
 }

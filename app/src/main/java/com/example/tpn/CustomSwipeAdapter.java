@@ -11,7 +11,8 @@ import android.widget.TextView;
 import androidx.viewpager.widget.PagerAdapter;
 
 public class CustomSwipeAdapter extends PagerAdapter {
-    private int[] image_resource = {R.drawable.main,R.drawable.main,R.drawable.main,R.drawable.main};
+    static public int[] image_resource = {R.drawable.main,R.drawable.main,R.drawable.main,R.drawable.main,R.drawable.main};
+    static public String[] labels ={"1","2","3","4","5"};
     private Context ctx;
     private LayoutInflater layoutInflater;
 
@@ -36,7 +37,7 @@ public class CustomSwipeAdapter extends PagerAdapter {
         ImageView imageview = (ImageView) item_view.findViewById(R.id.image_view);
         TextView textView = (TextView)  item_view.findViewById(R.id.image_count);
         imageview.setImageResource(image_resource[position]);
-        textView.setText("" + position);
+        textView.setText(labels[position]);
         container.addView(item_view);
         return item_view;
     }

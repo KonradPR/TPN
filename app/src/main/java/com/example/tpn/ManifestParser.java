@@ -32,9 +32,8 @@ public class ManifestParser {
         }
     };
 
-    static public JSONObject loadManifestFromAssets(AssetFileDescriptor fileDescriptor) throws IOException, JSONException {
-        InputStream is = new FileInputStream(fileDescriptor.getFileDescriptor());
-        String jsonTxt = IOUtils.toString(is, "UTF-8");
+    static public JSONObject loadManifestFromString(String jsonTxt) throws  JSONException {
+
         JSONObject manifest = new JSONObject(jsonTxt);
         return manifest;
     }

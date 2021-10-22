@@ -8,7 +8,7 @@
 
 
     <androidx.camera.view.PreviewView
-        android:id="@+id/preview_view"
+        android:id="@+id/camera"
         android:layout_width="match_parent"
         android:layout_height="240dp"
         android:background="#FF5722"
@@ -18,12 +18,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:scaleType="fitCenter" />
 
-    <androidx.camera.view.CameraView
-        android:id="@+id/view_camera"
-        android:layout_width="match_parent"
-        android:layout_height="240dp"
-        app:lensFacing="back"
-        app:layout_constraintTop_toBottomOf="@+id/preview_view" />
 
     <Button
         android:id="@+id/camera_capture_button"

@@ -6,6 +6,13 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
+
+    aaptOptions {
+        noCompress "tflite"
+        noCompress "json"
+        noCompress "txt"
+    }
+
     defaultConfig {
         applicationId "com.example.tpn"
         minSdkVersion 26
@@ -48,6 +55,7 @@ dependencies {
     implementation 'com.github.jama5262:CarouselView:1.2.2'
     implementation 'com.synnapps:carouselview:0.1.4'
     implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'com.google.guava:guava:31.0.1-android'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
