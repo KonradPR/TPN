@@ -10,9 +10,13 @@ import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
-
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +32,8 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -62,6 +68,7 @@ import org.tensorflow.lite.support.common.FileUtil;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -84,6 +91,7 @@ import java.util.regex.Pattern;
 import android.Manifest.permission.*;
 import android.Manifest.permission_group.*;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -108,10 +116,12 @@ public class MainActivity extends AppCompatActivity {
     private Executor executor = Executors.newSingleThreadExecutor();
 
     PreviewView mPreviewView;
+    Button cameraCaptureButton;
 
 
-    public void startCamera(PreviewView pview) {
+    public void startCamera(PreviewView pview, Button cameraCaptureButton) {
         mPreviewView = pview;
+        this.cameraCaptureButton = cameraCaptureButton;
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         cameraProviderFuture.addListener(new Runnable() {
@@ -154,11 +164,44 @@ public class MainActivity extends AppCompatActivity {
         }
 
         final ImageCapture imageCapture = builder
+                .setTargetResolution(new Size(214, 214))
                 .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
                 .build();
         preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis, imageCapture);
 
+        cameraCaptureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
+                    @Override
+                    public void onCaptureSuccess(@NonNull  ImageProxy image) {
+                        System.out.println("WWWWWWWWWWWWWWWW");
+                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                        System.out.println("W1");
+                        buffer.rewind();
+                        System.out.println("W2");
+                        byte[] bytes = new byte[ buffer.remaining()];
+                        System.out.println("W3");
+                        buffer.get(bytes);
+                        System.out.println("W4");
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                        System.out.println("W5");
+                        currentBitmap = Bitmap.createScaledBitmap(bitmap,224,224,false);
+                        System.out.println("W6");
+                        Navigation.findNavController(this,R.id.nav_host_fragment_content_main).navigate(R.id.action_to_ResultFragment);
+                        super.onCaptureSuccess(image);
+                        makePrediction();
+                    }
+
+                    @Override
+                    public void onError(@NonNull  ImageCaptureException exception) {
+                        System.out.println("EEEEEEEEEEEEEEEEEEEEE");
+                        super.onError(exception);
+                    }
+                });
+            }
+        });
     }
 
     public void pick(){

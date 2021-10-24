@@ -55,7 +55,7 @@ public class CameraFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((MainActivity)getActivity()).startCamera(binding.camera);
+        ((MainActivity)getActivity()).startCamera(binding.camera, binding.cameraCaptureButton);
 
     }
 
