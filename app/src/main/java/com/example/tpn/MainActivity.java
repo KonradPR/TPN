@@ -353,13 +353,19 @@ public class MainActivity extends AppCompatActivity {
             cacheFile.getParentFile().mkdirs();
             copyToCacheFile(assetPath, cacheFile);
             AssetFileDescriptor assetFileDescriptor = new AssetFileDescriptor(ParcelFileDescriptor.open(cacheFile, MODE_READ_ONLY), 0, -1);//getAssets().openFd("file:///android_asset/manifest.json");
-            System.out.println("WEEEEEEEEEE");
             String jsonTxt = IOUtils.toString(assetFileDescriptor.createInputStream(), StandardCharsets.UTF_8);
             defaultManifest = ManifestParser.loadManifestFromString(jsonTxt);
+            if(!ManifestParser.validateManifest(defaultManifest))throw new RuntimeException("Manifest is invalid!");
             models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", defaultManifest));
             models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",defaultManifest));
-        } catch (Exception e) {
+        } catch ( RuntimeException e) {
             System.out.println("HERE");
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 

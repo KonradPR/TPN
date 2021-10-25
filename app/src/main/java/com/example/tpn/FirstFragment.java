@@ -112,7 +112,7 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         checkPermissions();
         super.onViewCreated(view, savedInstanceState);
-        binding.currentModel.setText("Currently used model: "+((MainActivity)getActivity()).getModelName());
+            binding.currentModel.setText("Currently used model: " + ((MainActivity) getActivity()).getModelName());
         binding.buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

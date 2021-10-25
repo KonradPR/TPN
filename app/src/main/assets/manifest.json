@@ -574,7 +574,7 @@
     "Corallorhiza trifida"
   ],
   "use_photos": true,
-  "photo_sources": "assets",
+  "photos_source": "assets",
   "input_type": "UINT8",
   "input_size": [224, 224]
 
