@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#689F38</color>
+    <color name="colorPrimary">#ededed</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#afb42b</color>
+    <color name="colorAccent">#9E9E9E</color>
+    <color name="textColorPrimary">#212121</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#9E9E9E</color>
     <color name="purple_700">#FF3700B3</color>
@@ -10,4 +11,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="colorControlHighlight">#4000695C</color>
+    <color name="colorBackground">#9E9E9E</color>
 </resources>

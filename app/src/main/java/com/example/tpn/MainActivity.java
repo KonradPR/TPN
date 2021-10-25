@@ -61,6 +61,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -114,12 +115,14 @@ public class MainActivity extends AppCompatActivity {
     private ListView list;
     private ArrayList<String> arrayList;
     private Executor executor = Executors.newSingleThreadExecutor();
+    private boolean wasCameraBound = false;
 
     PreviewView mPreviewView;
     Button cameraCaptureButton;
 
 
     public void startCamera(PreviewView pview, Button cameraCaptureButton) {
+
         mPreviewView = pview;
         this.cameraCaptureButton = cameraCaptureButton;
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
@@ -130,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
 
                     ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                    cameraProvider.unbindAll();
                     bindPreview(cameraProvider);
 
                 } catch (ExecutionException | InterruptedException e) {
@@ -138,7 +142,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }, ContextCompat.getMainExecutor(this));
-    }
+
+        }
+
 
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
 
@@ -176,27 +182,18 @@ public class MainActivity extends AppCompatActivity {
                 imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onCaptureSuccess(@NonNull  ImageProxy image) {
-                        System.out.println("WWWWWWWWWWWWWWWW");
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        System.out.println("W1");
                         buffer.rewind();
-                        System.out.println("W2");
                         byte[] bytes = new byte[ buffer.remaining()];
-                        System.out.println("W3");
                         buffer.get(bytes);
-                        System.out.println("W4");
                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
-                        System.out.println("W5");
                         currentBitmap = Bitmap.createScaledBitmap(bitmap,224,224,false);
-                        System.out.println("W6");
-                        Navigation.findNavController(this,R.id.nav_host_fragment_content_main).navigate(R.id.action_to_ResultFragment);
                         super.onCaptureSuccess(image);
-                        makePrediction();
+                        toResult();
                     }
 
                     @Override
                     public void onError(@NonNull  ImageCaptureException exception) {
-                        System.out.println("EEEEEEEEEEEEEEEEEEEEE");
                         super.onError(exception);
                     }
                 });
@@ -239,10 +236,28 @@ public class MainActivity extends AppCompatActivity {
             if(index < 0) continue;
             result[resultPos++] = i;
         }
+        for (int i = 0; i < nummax-1; i++)
+            for (int j = 0; j < nummax-i-1; j++){
+                if (orig[result[j]] < orig[result[j+1]])
+                {
+                    int temp = result[j];
+                    result[j] = result[j+1];
+                    result[j+1] = temp;
+                }
+            }
         return result;
     }
 
 
+    private void toResult(){
+        MainActivity act = this;
+
+        this.runOnUiThread(new Runnable( ) {
+            @Override
+            public void run() {
+                Navigation.findNavController(act, R.id.nav_host_fragment_content_main).navigate(R.id.action_to_ResultFragment);
+            }});
+    }
     public void makePrediction(){
         float[][] buf = new float[1][285];
         ByteBuffer buffer = TensorImage.fromBitmap(currentBitmap).getBuffer();
@@ -253,7 +268,9 @@ public class MainActivity extends AppCompatActivity {
         for(int i=0;i<5;i++){
             int j = top[i];
             images[i] = getResources().getIdentifier("d"+(j+1), "drawable", getPackageName());
-            labels[i] = models.get(indexOfCurrentModel).getLabel(j);
+            labels[i] = StringUtils.capitalize(models.get(indexOfCurrentModel).getLabel(j))+"\n"+
+                        StringUtils.capitalize(models.get(indexOfCurrentModel).getLatinLabel(j))
+                        +"\n"+ "Probability: " + String.format("%.2f",(buf[0][j]*100)) +"%";
         }
         CustomSwipeAdapter.image_resource = images;
         CustomSwipeAdapter.labels = labels;
@@ -277,8 +294,8 @@ public class MainActivity extends AppCompatActivity {
             String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(path),224,224,false);
             currentBitmap = bitmap;
-            Navigation.findNavController(this,R.id.nav_host_fragment_content_main).navigate(R.id.action_to_ResultFragment);
-            makePrediction();
+            toResult();
+
         }
     }
 
@@ -336,6 +353,7 @@ public class MainActivity extends AppCompatActivity {
             AssetFileDescriptor assetFileDescriptor = new AssetFileDescriptor(ParcelFileDescriptor.open(cacheFile, MODE_READ_ONLY), 0, -1);//getAssets().openFd("file:///android_asset/manifest.json");
             System.out.println("WEEEEEEEEEE");
             String jsonTxt = IOUtils.toString(assetFileDescriptor.createInputStream(), StandardCharsets.UTF_8);
+            System.out.println(ManifestParser.loadManifestFromString(jsonTxt));
             models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", ManifestParser.loadManifestFromString(jsonTxt)));
             models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",ManifestParser.loadManifestFromString(jsonTxt)));
         } catch (Exception e) {

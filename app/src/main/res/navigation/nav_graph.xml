@@ -39,6 +39,9 @@
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_to_ResultFragment"
+            app:destination="@id/ResultFragment" />
     </fragment>
 
     <fragment

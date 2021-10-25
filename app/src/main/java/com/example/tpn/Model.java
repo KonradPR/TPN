@@ -1,5 +1,6 @@
 package com.example.tpn;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.tensorflow.lite.Interpreter;
 
@@ -13,6 +14,7 @@ public class Model {
     public Model(MappedByteBuffer mappedByteBuffer, String modelName, JSONObject manifest) {
         this.modelName = modelName;
         interpreter = new Interpreter(mappedByteBuffer);
+        this.manifest = manifest;
     }
 
     public String getModelName(){
@@ -23,8 +25,20 @@ public class Model {
         return interpreter;
     }
 
-    public String getLabel(int i){
-        return "tuuuu";
+    public String getLabel(int i) {
+        try {
+            return manifest.getJSONArray("labels").getString(i);
+        }catch (JSONException e){
+            return "";
+        }
+    }
+
+    public String getLatinLabel(int i){
+        try {
+            return manifest.getJSONArray("latin_labels").getString(i);
+        }catch (JSONException e){
+            return "";
+        }
     }
 
 
