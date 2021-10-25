@@ -416,4 +416,12 @@ public class MainActivity extends AppCompatActivity {
         useDefaultManifest = !useDefaultManifest;
         System.out.println(useDefaultManifest);
     }
+
+    public void setIndexOfCurrentModel(int i){
+        indexOfCurrentModel = i;
+    }
+
+    public String getModelName(){
+       return models.get(indexOfCurrentModel).getModelName();
+    }
 }

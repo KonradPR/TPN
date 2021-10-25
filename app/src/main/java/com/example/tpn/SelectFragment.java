@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 
 import com.example.tpn.databinding.SelectFragmentBinding;
@@ -40,6 +41,9 @@ public class SelectFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 System.out.println( ((String) adapterView.getItemAtPosition(i)));
+                ((MainActivity)getActivity()).setIndexOfCurrentModel(i);
+                NavHostFragment.findNavController(SelectFragment.this)
+                        .navigate(R.id.action_to_menu);
             }
         });
     }

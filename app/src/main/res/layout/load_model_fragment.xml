@@ -25,24 +25,24 @@
         android:id="@+id/checkbox_meat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="124dp"
         android:layout_marginTop="24dp"
+        android:layout_marginEnd="125dp"
         android:checked="true"
         android:onClick="onCheckboxClicked"
         android:text="Use default manifest"
-        app:layout_constraintTop_toBottomOf="@+id/editTextModelName"
-        tools:layout_editor_absoluteX="124dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextModelName" />
 
     <Button
         android:id="@+id/button_load"
         android:layout_width="379dp"
         android:layout_height="58dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="224dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginTop="120dp"
         android:text="Załaduj Model"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextModelName" />
+        app:layout_constraintTop_toBottomOf="@+id/checkbox_meat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
