@@ -63,6 +63,7 @@ import android.view.MenuItem;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.common.FileUtil;
@@ -115,7 +116,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView list;
     private ArrayList<String> arrayList;
     private Executor executor = Executors.newSingleThreadExecutor();
-    private boolean wasCameraBound = false;
+    private JSONObject defaultManifest = null;
+    private boolean useDefaultManifest = true;
 
     PreviewView mPreviewView;
     Button cameraCaptureButton;
@@ -284,9 +286,9 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
            String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             try {
-                models.add(new Model(loadLocalModelFile(path), modelName, ManifestParser.loadManifestFromStorage("placeholder") ));
+                models.add(new Model(loadLocalModelFile(path), modelName, defaultManifest ));
                 System.out.println(models.size());
-            } catch (IOException | JSONException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             System.out.println(path);
@@ -353,9 +355,9 @@ public class MainActivity extends AppCompatActivity {
             AssetFileDescriptor assetFileDescriptor = new AssetFileDescriptor(ParcelFileDescriptor.open(cacheFile, MODE_READ_ONLY), 0, -1);//getAssets().openFd("file:///android_asset/manifest.json");
             System.out.println("WEEEEEEEEEE");
             String jsonTxt = IOUtils.toString(assetFileDescriptor.createInputStream(), StandardCharsets.UTF_8);
-            System.out.println(ManifestParser.loadManifestFromString(jsonTxt));
-            models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", ManifestParser.loadManifestFromString(jsonTxt)));
-            models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",ManifestParser.loadManifestFromString(jsonTxt)));
+            defaultManifest = ManifestParser.loadManifestFromString(jsonTxt);
+            models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", defaultManifest));
+            models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",defaultManifest));
         } catch (Exception e) {
             System.out.println("HERE");
             e.printStackTrace();
@@ -408,4 +410,10 @@ public class MainActivity extends AppCompatActivity {
         this.currentBitmap = currentBitmap;
     }
 
+
+
+    public void onCheckboxClicked(View view){
+        useDefaultManifest = !useDefaultManifest;
+        System.out.println(useDefaultManifest);
+    }
 }
