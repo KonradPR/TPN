@@ -92,6 +92,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import android.Manifest.permission.*;
 import android.Manifest.permission_group.*;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -103,7 +104,7 @@ import static androidx.camera.core.CameraX.getContext;
 //import android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
-    private  int PERMISSIONS_REQUEST_CODE = 0;
+    private  int FILE_PICKER_REQUEST_CODE_JSON = 0;
     private  int FILE_PICKER_REQUEST_CODE = 1;
     private  int FILE_PICKER_REQUEST_CODE_JPG = 2;
     private AppBarConfiguration appBarConfiguration;
@@ -117,7 +118,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> arrayList;
     private Executor executor = Executors.newSingleThreadExecutor();
     private JSONObject defaultManifest = null;
+    private JSONObject manifestToLoad = null;
     private boolean useDefaultManifest = true;
+    private View loadingView = null;
+    private Exception currentException = null;
 
     PreviewView mPreviewView;
     Button cameraCaptureButton;
@@ -214,6 +218,19 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
+    public void loadManifest(View view){
+        loadingView = view;
+        new MaterialFilePicker()
+                .withActivity(this)
+                .withCloseMenu(true)
+                .withFilter(Pattern.compile(".*\\.(json)$"))
+                .withFilterDirectories(false)
+                .withTitle("Choose File to Import")
+                .withRequestCode(FILE_PICKER_REQUEST_CODE_JSON)
+                .start();
+    }
+
+
 
     public void getPhotoFromGallery(){
         new MaterialFilePicker()
@@ -286,7 +303,12 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
            String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             try {
-                models.add(new Model(loadLocalModelFile(path), modelName, defaultManifest ));
+                if(manifestToLoad == null){
+                    models.add(new Model(loadLocalModelFile(path), modelName,  defaultManifest));
+                }else{
+                    models.add(new Model(loadLocalModelFile(path), modelName, manifestToLoad ));
+                    manifestToLoad = null;
+                }
                 System.out.println(models.size());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -298,6 +320,19 @@ public class MainActivity extends AppCompatActivity {
             currentBitmap = bitmap;
             toResult();
 
+        } else if(requestCode == FILE_PICKER_REQUEST_CODE_JSON && resultCode == Activity.RESULT_OK){
+            String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            try {
+                manifestToLoad = ManifestParser.loadManifestFromStorage(path);
+                if(!ManifestParser.validateManifest(manifestToLoad)) throw new JSONException("Manifest is invalid");
+                ((Button)((ViewGroup)loadingView.getParent()).getChildAt(2)).setEnabled(true);
+            } catch (IOException e) {
+                manifestToLoad = null;
+                e.printStackTrace();
+            } catch (JSONException e) {
+                manifestToLoad = null;
+                e.printStackTrace();
+            }
         }
     }
 
@@ -420,7 +455,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void onCheckboxClicked(View view){
         useDefaultManifest = !useDefaultManifest;
-        System.out.println(useDefaultManifest);
+        ((Button)((ViewGroup)view.getParent()).getChildAt(3)).setEnabled(!useDefaultManifest);
+        ((Button)((ViewGroup)view.getParent()).getChildAt(2)).setEnabled(useDefaultManifest);
+
     }
 
     public void setIndexOfCurrentModel(int i){
@@ -429,5 +466,13 @@ public class MainActivity extends AppCompatActivity {
 
     public String getModelName(){
        return models.get(indexOfCurrentModel).getModelName();
+    }
+
+    public JSONObject getManifestToLoad(){
+        return manifestToLoad;
+    }
+
+    public Exception getCurrentException(){
+        return currentException;
     }
 }

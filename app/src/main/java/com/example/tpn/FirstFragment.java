@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.tpn.databinding.FragmentFirstBinding;
+import com.google.android.material.snackbar.Snackbar;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 
 import java.util.regex.Pattern;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
+    private static boolean wasAlreadyVisited = false;
 
     @Override
     public View onCreateView(
@@ -86,7 +88,7 @@ public class FirstFragment extends Fragment {
                 Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED;
 
-        if (permissionGranted1) {
+        if (permissionGranted2) {
         } else {
             if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
             } else {
@@ -95,14 +97,16 @@ public class FirstFragment extends Fragment {
         }
 
 
-        if (Environment.isExternalStorageManager()){
+        if(Integer.valueOf(android.os.Build.VERSION.SDK)>=30){
+            if (Environment.isExternalStorageManager()){
 
-        }else{
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-            Uri uri = Uri.fromParts("package", this.getActivity().getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
+            }else{
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", this.getActivity().getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            }
         }
 
     }
@@ -112,7 +116,12 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         checkPermissions();
         super.onViewCreated(view, savedInstanceState);
-            binding.currentModel.setText("Currently used model: " + ((MainActivity) getActivity()).getModelName());
+        if(!wasAlreadyVisited){
+            wasAlreadyVisited = true;
+            Snackbar mySnackbar = Snackbar.make(view, R.string.menu, Snackbar.LENGTH_SHORT);
+            mySnackbar.show();
+        }
+        binding.currentModel.setText("Currently used model: " + ((MainActivity) getActivity()).getModelName());
         binding.buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

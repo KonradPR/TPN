@@ -15,7 +15,7 @@
         android:layout_marginTop="64dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Nazwa modelu"
+        android:text="Model Name"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,18 @@
         android:layout_width="379dp"
         android:layout_height="58dp"
         android:layout_marginTop="120dp"
-        android:text="Załaduj Model"
+        android:text="Load Model"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkbox_meat" />
+
+    <Button
+        android:id="@+id/button_manifest"
+        android:layout_width="379dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="24dp"
+        android:text="Load Manifest"
+        android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkbox_meat" />

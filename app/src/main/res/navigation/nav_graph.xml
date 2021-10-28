@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_to_ResultFragment"
             app:destination="@id/ResultFragment" />
+        <action
+            android:id="@+id/action_to_error"
+            app:destination="@id/ErrorFragment" />
     </fragment>
     <fragment
         android:id="@+id/CameraFragment"
@@ -42,6 +45,9 @@
         <action
             android:id="@+id/action_to_ResultFragment"
             app:destination="@id/ResultFragment" />
+        <action
+            android:id="@+id/action_to_error"
+            app:destination="@id/ErrorFragment" />
     </fragment>
 
     <fragment
@@ -49,6 +55,21 @@
         android:name="com.example.tpn.LoadModelFragment"
         android:label="Load Model Fragment"
         tools:layout="@layout/load_model_fragment">
+
+        <action
+            android:id="@+id/action_to_menu"
+            app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_to_error"
+            app:destination="@id/ErrorFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/ErrorFragment"
+        android:name="com.example.tpn.ErrorFragment"
+        android:label="Error Fragment"
+        tools:layout="@layout/error_fragment">
 
         <action
             android:id="@+id/action_to_menu"
@@ -66,6 +87,9 @@
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_to_error"
+            app:destination="@id/ErrorFragment" />
     </fragment>
 
     <fragment
@@ -77,6 +101,9 @@
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_to_error"
+            app:destination="@id/ErrorFragment" />
     </fragment>
 
     <fragment

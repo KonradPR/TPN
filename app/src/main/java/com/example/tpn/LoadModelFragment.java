@@ -34,6 +34,13 @@ public class LoadModelFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        binding.buttonManifest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).loadManifest(view);
+
+            }
+        });
         binding.buttonLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
