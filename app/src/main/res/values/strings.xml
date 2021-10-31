@@ -9,5 +9,19 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="menu">This is a menu snackbar</string>
+    <string name="menu">Hello! \nThis is the main menu of our application from here you can use buttons to:
+    \nSelect photo from gallery for image recognition
+    \nTake a new photo using phone camera for image recognition
+    \nSwitch between different ML models to select one to use
+    \nLoad new models from phone storage to use</string>
+    <string name="camera">Here You can take a photo and the application will run it through currently use
+        Machine Learning model and then display five classes which the model will predict as the most probable</string>
+    <string name="load">Here You can load new models to use. If You wan to load model that is complainant with
+        our default settings (224x224 input size model recognizing labels from a dataset of 285
+        plant species from Tatra National Park) just click Load Model and select appropriate .tflite file.
+        However if You want to load model that differs from our default (has different size of input, recognizes cars, animals etc.)
+        You need to provide a manifest file (a simple json) that describes the the models input and output.
+        To do so uncheck the "Use default manifest" and load a custom one, then chose a .tflite file containing model described in the manifest.</string>
+    <string name="select">Here You can select a model to use (from the ones we provided or those that You have loaded yourself).
+    Model You select is gone be run whenever You take a photo with the camera or pick one from gallery.</string>
 </resources>

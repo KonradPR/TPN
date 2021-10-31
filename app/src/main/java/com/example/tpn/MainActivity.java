@@ -233,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void getPhotoFromGallery(){
+        /*
         new MaterialFilePicker()
                 .withActivity(this)
                 .withCloseMenu(true)
@@ -241,6 +242,8 @@ public class MainActivity extends AppCompatActivity {
                 .withTitle("Choose File to Import")
                 .withRequestCode(FILE_PICKER_REQUEST_CODE_JPG)
                 .start();
+        */Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, FILE_PICKER_REQUEST_CODE_JPG);
     }
 
     static int[] indexesOfTopElements(float[] orig, int nummax) {
@@ -315,9 +318,18 @@ public class MainActivity extends AppCompatActivity {
             }
             System.out.println(path);
         }else if(requestCode == FILE_PICKER_REQUEST_CODE_JPG && resultCode == Activity.RESULT_OK){
-            String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(path),224,224,false);
-            currentBitmap = bitmap;
+            //String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            //Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(path),224,224,false);
+            //currentBitmap = bitmap;
+            //toResult();
+            Uri selectedImage = data.getData();
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            currentBitmap = Bitmap.createScaledBitmap(bitmap,224,224,false);
             toResult();
 
         } else if(requestCode == FILE_PICKER_REQUEST_CODE_JSON && resultCode == Activity.RESULT_OK){

@@ -1,6 +1,8 @@
 package com.example.tpn;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
@@ -118,8 +121,16 @@ public class FirstFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         if(!wasAlreadyVisited){
             wasAlreadyVisited = true;
-            Snackbar mySnackbar = Snackbar.make(view, R.string.menu, Snackbar.LENGTH_SHORT);
-            mySnackbar.show();
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+            alertDialogBuilder.setMessage(R.string.menu);
+            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener(){
+
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
         }
         binding.currentModel.setText("Currently used model: " + ((MainActivity) getActivity()).getModelName());
         binding.buttonCamera.setOnClickListener(new View.OnClickListener() {

@@ -1,6 +1,7 @@
 package com.example.tpn;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -35,7 +37,7 @@ import java.util.concurrent.Executors;
 public class CameraFragment extends Fragment {
 
     private CameraFragmentBinding binding;
-
+    private static boolean wasAlreadyVisited = false;
 
 
     public CameraFragment() {
@@ -56,6 +58,19 @@ public class CameraFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ((MainActivity)getActivity()).startCamera(binding.camera, binding.cameraCaptureButton);
+        if(!wasAlreadyVisited){
+            wasAlreadyVisited = true;
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+            alertDialogBuilder.setMessage(R.string.camera);
+            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener(){
+
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+        }
 
     }
 

@@ -36,9 +36,9 @@
         android:layout_height="58dp"
         android:text="Camera"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_model_load" />
+        app:layout_constraintTop_toBottomOf="@+id/button_from_gallery" />
 
     <Button
         android:id="@+id/button_select"
@@ -58,7 +58,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_from_gallery" />
+        app:layout_constraintTop_toBottomOf="@+id/button_select" />
 
     <Button
         android:id="@+id/button_from_gallery"
