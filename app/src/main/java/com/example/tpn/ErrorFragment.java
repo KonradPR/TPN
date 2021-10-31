@@ -6,14 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.tpn.databinding.ErrorFragmentBinding;
-import com.example.tpn.databinding.LoadModelFragmentBinding;
+
 
 public class ErrorFragment extends Fragment {
-
+    private static Exception currentException = null;
+    private static boolean isCritical = false;
     private ErrorFragmentBinding binding;
 
     @Override
@@ -28,8 +30,14 @@ public class ErrorFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull  View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding.textView.setText(currentException.getMessage());
+    }
 
+
+    public static void notifyCriticalError(){isCritical = true;}
+    public static void setCurrentException(Exception ex){
+        currentException = ex;
     }
 }

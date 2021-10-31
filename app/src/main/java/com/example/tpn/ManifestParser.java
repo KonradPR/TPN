@@ -96,22 +96,27 @@ public class ManifestParser {
         return true;
     }
 
-    static public JSONObject loadManifestFromStorage(String path) throws IOException, JSONException {
-        File file = new File(path);
-        if(file.exists()){
+    static public JSONObject loadManifestFromStorage(String path) throws ManifestException {
+        try {
+            File file = new File(path);
             InputStream is = new FileInputStream(file);
             String jsonTxt = IOUtils.toString(is, "UTF-8");
             JSONObject manifest = new JSONObject(jsonTxt);
+            if(!ManifestParser.validateManifest(manifest)) throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
             return manifest;
-        }else{
-            throw new FileNotFoundException();
+        }catch (Exception ex){
+            throw new ManifestException("There was an error loading model's manifest");
         }
-    };
+    }
 
-    static public JSONObject loadManifestFromString(String jsonTxt) throws  JSONException {
-
-        JSONObject manifest = new JSONObject(jsonTxt);
-        return manifest;
+    static public JSONObject loadManifestFromString(String jsonTxt) throws  ManifestException {
+        try {
+            JSONObject manifest = new JSONObject(jsonTxt);
+            if(!ManifestParser.validateManifest(manifest))throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
+            return manifest;
+        } catch (JSONException ex){
+            throw new ManifestException("There was an error loading model's manifest");
+        }
     }
 
 }

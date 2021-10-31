@@ -25,21 +25,48 @@ public class Model {
         return interpreter;
     }
 
-    public String getLabel(int i) {
+    public String getLabel(int i) throws ManifestException {
         try {
             return manifest.getJSONArray("labels").getString(i);
         }catch (JSONException e){
-            return "";
+            throw new ManifestException("There was an error getting a specific label from the model's manifest");
         }
     }
 
-    public String getLatinLabel(int i){
+    public String getLatinLabel(int i) throws ManifestException{
         try {
             return manifest.getJSONArray("latin_labels").getString(i);
         }catch (JSONException e){
-            return "";
+            throw new ManifestException("There was an error getting a specific label from the model's manifest");
         }
     }
+
+    public int getFirstDim() throws ManifestException{
+        try {
+            return manifest.getJSONArray("input_size").getInt(0);
+        } catch (JSONException e) {
+            throw new ManifestException("There was an error getting input dimension from manifest");
+        }
+    }
+
+    public int getSecondDim() throws ManifestException{
+        try {
+            return manifest.getJSONArray("input_size").getInt(1);
+        } catch (JSONException e) {
+            throw new ManifestException("There was an error getting input dimension from manifest");
+        }
+
+    }
+
+    public boolean usePhotos() throws ManifestException{
+        try {
+            return manifest.getBoolean("use_photos");
+        } catch (JSONException e) {
+            throw new ManifestException("There was an error getting photo information from manifest");
+        }
+    }
+
+
 
 
 }

@@ -233,16 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void getPhotoFromGallery(){
-        /*
-        new MaterialFilePicker()
-                .withActivity(this)
-                .withCloseMenu(true)
-                .withFilter(Pattern.compile(".*\\.(jpg)$"))
-                .withFilterDirectories(false)
-                .withTitle("Choose File to Import")
-                .withRequestCode(FILE_PICKER_REQUEST_CODE_JPG)
-                .start();
-        */Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, FILE_PICKER_REQUEST_CODE_JPG);
     }
 
@@ -280,70 +271,84 @@ public class MainActivity extends AppCompatActivity {
                 Navigation.findNavController(act, R.id.nav_host_fragment_content_main).navigate(R.id.action_to_ResultFragment);
             }});
     }
+
+    public void toError(){
+        MainActivity act = this;
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Navigation.findNavController(act, R.id.nav_host_fragment_content_main).navigate(R.id.action_to_ErrorFragment);
+            }
+        });
+    }
+
     public void makePrediction(){
-        float[][] buf = new float[1][285];
-        ByteBuffer buffer = TensorImage.fromBitmap(currentBitmap).getBuffer();
-        models.get(indexOfCurrentModel).getInterpreter().run(buffer,buf);
-        int[] top = indexesOfTopElements(buf[0],5);
-        int[] images = new int[5];
-        String[] labels = new String[5];
-        for(int i=0;i<5;i++){
-            int j = top[i];
-            images[i] = getResources().getIdentifier("d"+(j+1), "drawable", getPackageName());
-            labels[i] = StringUtils.capitalize(models.get(indexOfCurrentModel).getLabel(j))+"\n"+
-                        StringUtils.capitalize(models.get(indexOfCurrentModel).getLatinLabel(j))
-                        +"\n"+ "Probability: " + String.format("%.2f",(buf[0][j]*100)) +"%";
+        try {
+            Model model = models.get(indexOfCurrentModel);
+            currentBitmap = Bitmap.createScaledBitmap(currentBitmap, model.getFirstDim(), model.getSecondDim(), false);
+            float[][] buf = new float[1][285];
+            ByteBuffer buffer = TensorImage.fromBitmap(currentBitmap).getBuffer();
+            model.getInterpreter().run(buffer, buf);
+            int[] top = indexesOfTopElements(buf[0], 5);
+            int[] images = new int[5];
+            String[] labels = new String[5];
+            for (int i = 0; i < 5; i++) {
+                int j = top[i];
+                if (model.usePhotos()) {
+                    images[i] = getResources().getIdentifier("d" + (j + 1), "drawable", getPackageName());
+                } else {
+                    images[i] = R.drawable.placeholder;
+                }
+                labels[i] = StringUtils.capitalize(model.getLabel(j)) + "\n" +
+                        StringUtils.capitalize(model.getLatinLabel(j))
+                        + "\n" + "Probability: " + String.format("%.2f", (buf[0][j] * 100)) + "%";
+            }
+            CustomSwipeAdapter.image_resource = images;
+            CustomSwipeAdapter.labels = labels;
+        }catch (ManifestException exception){
+            ErrorFragment.setCurrentException(exception);
+            toError();
         }
-        CustomSwipeAdapter.image_resource = images;
-        CustomSwipeAdapter.labels = labels;
-
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-           String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             try {
-                if(manifestToLoad == null){
-                    models.add(new Model(loadLocalModelFile(path), modelName,  defaultManifest));
-                }else{
-                    models.add(new Model(loadLocalModelFile(path), modelName, manifestToLoad ));
-                    manifestToLoad = null;
-                }
-                System.out.println(models.size());
-            } catch (IOException e) {
-                e.printStackTrace();
+                String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+                    if (manifestToLoad == null) {
+                        models.add(new Model(loadLocalModelFile(path), modelName, defaultManifest));
+                    } else {
+                        models.add(new Model(loadLocalModelFile(path), modelName, manifestToLoad));
+                        manifestToLoad = null;
+                    }
+            }catch (IOException e){
+                ErrorFragment.setCurrentException(new FileException("There was an erroropening model file"));
+                toError();
             }
-            System.out.println(path);
+
         }else if(requestCode == FILE_PICKER_REQUEST_CODE_JPG && resultCode == Activity.RESULT_OK){
-            //String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            //Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(path),224,224,false);
-            //currentBitmap = bitmap;
-            //toResult();
-            Uri selectedImage = data.getData();
-            Bitmap bitmap = null;
             try {
+                Uri selectedImage = data.getData();
+                Bitmap bitmap = null;
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-            } catch (IOException e) {
-                e.printStackTrace();
+                currentBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, false);
+                toResult();
+            }catch (IOException ex){
+                ErrorFragment.setCurrentException(new FileException("There was an error loading file from gallery"));
+                toError();
             }
-            currentBitmap = Bitmap.createScaledBitmap(bitmap,224,224,false);
-            toResult();
 
         } else if(requestCode == FILE_PICKER_REQUEST_CODE_JSON && resultCode == Activity.RESULT_OK){
             String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             try {
                 manifestToLoad = ManifestParser.loadManifestFromStorage(path);
-                if(!ManifestParser.validateManifest(manifestToLoad)) throw new JSONException("Manifest is invalid");
                 ((Button)((ViewGroup)loadingView.getParent()).getChildAt(2)).setEnabled(true);
-            } catch (IOException e) {
+            }catch (ManifestException ex){
                 manifestToLoad = null;
-                e.printStackTrace();
-            } catch (JSONException e) {
-                manifestToLoad = null;
-                e.printStackTrace();
+                ErrorFragment.setCurrentException(ex);
+                toError();
             }
         }
     }
@@ -360,25 +365,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void copyToCacheFile(final String assetPath, final File cacheFile) throws IOException
+    private void copyToCacheFile(final String assetPath, final File cacheFile) throws FileException
     {
-        final InputStream inputStream = getAssets().open(assetPath, ACCESS_BUFFER);
-        try
-        {
-            final FileOutputStream fileOutputStream = new FileOutputStream(cacheFile, false);
-            try
-            {
-                //using Guava IO lib to copy the streams, but could also do it manually
-                ByteStreams.copy(inputStream, fileOutputStream);
+        try {
+            final InputStream inputStream = getAssets().open(assetPath, ACCESS_BUFFER);
+            try {
+                final FileOutputStream fileOutputStream = new FileOutputStream(cacheFile, false);
+                try {
+                    //using Guava IO lib to copy the streams, but could also do it manually
+                    ByteStreams.copy(inputStream, fileOutputStream);
+                } finally {
+                    fileOutputStream.close();
+                }
+            } finally {
+                inputStream.close();
             }
-            finally
-            {
-                fileOutputStream.close();
-            }
-        }
-        finally
-        {
-            inputStream.close();
+        }catch (Exception ex){
+            throw new FileException("There was an error copying file to cache");
         }
     }
     @Override
@@ -389,7 +392,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -405,20 +407,24 @@ public class MainActivity extends AppCompatActivity {
             if(!ManifestParser.validateManifest(defaultManifest))throw new RuntimeException("Manifest is invalid!");
             models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", defaultManifest));
             models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",defaultManifest));
-        } catch ( RuntimeException e) {
-            System.out.println("HERE");
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (FileException ex) {
+            ErrorFragment.setCurrentException(ex);
+            ErrorFragment.notifyCriticalError();
+            toError();
+        } catch (ManifestException ex){
+            ErrorFragment.setCurrentException(ex);
+            ErrorFragment.notifyCriticalError();
+            toError();
+        } catch (Exception ex) {
+            ErrorFragment.setCurrentException(new FileException("There was an error opening asset file"));
+            ErrorFragment.notifyCriticalError();
+            toError();
         }
 
     }
 
-    private MappedByteBuffer loadModelFromAssets(String fileName) throws IOException {
+    private MappedByteBuffer loadModelFromAssets(String fileName) throws FileException {
+        try{
         AssetFileDescriptor fileDescriptor = getAssets().openFd(fileName);
         FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
         long startOffset = fileDescriptor.getStartOffset();
@@ -426,6 +432,9 @@ public class MainActivity extends AppCompatActivity {
 
         FileChannel fileChannel = inputStream.getChannel();
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+        }catch (Exception ex){
+            throw new FileException("There was an error accessing model asset");
+        }
     }
 
     private MappedByteBuffer loadLocalModelFile(String path) throws IOException {

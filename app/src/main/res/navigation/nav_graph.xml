@@ -11,9 +11,8 @@
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first">
 
-        <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+        <action android:id="@+id/action_to_ErrorFragment"
+            app:destination="@+id/ErrorFragment"/>
         <action
             android:id="@+id/action_to_SelectFragment"
             app:destination="@id/SelectFragment" />
@@ -36,6 +35,8 @@
         android:label="Camera Fragment"
         tools:layout="@layout/camera_fragment">
 
+        <action android:id="@+id/action_to_ErrorFragment"
+            app:destination="@+id/ErrorFragment"/>
         <action
             android:id="@+id/action_take_photo"
             app:destination="@id/ResultFragment" />
@@ -56,6 +57,8 @@
         android:label="Load Model Fragment"
         tools:layout="@layout/load_model_fragment">
 
+        <action android:id="@+id/action_to_ErrorFragment"
+            app:destination="@+id/ErrorFragment"/>
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
@@ -84,6 +87,8 @@
         android:label="Result Fragment"
         tools:layout="@layout/result_fragment">
 
+        <action android:id="@+id/action_to_ErrorFragment"
+            app:destination="@+id/ErrorFragment"/>
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
@@ -98,6 +103,8 @@
         android:label="Select Fragment"
         tools:layout="@layout/select_fragment">
 
+        <action android:id="@+id/action_to_ErrorFragment"
+            app:destination="@+id/ErrorFragment"/>
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
@@ -106,15 +113,5 @@
             app:destination="@id/ErrorFragment" />
     </fragment>
 
-    <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.tpn.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
 
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
-
-    </fragment>
 </navigation>

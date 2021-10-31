@@ -11,12 +11,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="175dp"
-        android:layout_marginTop="261dp"
+        android:layout_marginTop="361dp"
         android:layout_marginEnd="175dp"
-        android:layout_marginBottom="451dp"
+        android:layout_marginBottom="351dp"
         android:text="Errror message"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="105dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="106dp"
+        android:src="@drawable/sad"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
