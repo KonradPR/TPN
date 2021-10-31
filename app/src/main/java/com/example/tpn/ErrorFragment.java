@@ -1,6 +1,9 @@
 package com.example.tpn;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +38,18 @@ public class ErrorFragment extends Fragment {
         binding.textView.setText(currentException.getMessage());
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(isCritical){
+            PackageManager packageManager = getContext().getPackageManager();
+            Intent intent = packageManager.getLaunchIntentForPackage(getContext().getPackageName());
+            ComponentName componentName = intent.getComponent();
+            Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+            getContext().startActivity(mainIntent);
+            Runtime.getRuntime().exit(0);
+        }
+    }
 
     public static void notifyCriticalError(){isCritical = true;}
     public static void setCurrentException(Exception ex){
