@@ -1,6 +1,8 @@
 package com.example.tpn;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +19,7 @@ import com.example.tpn.databinding.LoadModelFragmentBinding;
 public class LoadModelFragment extends Fragment {
 
     private LoadModelFragmentBinding binding;
-    private static boolean wasAlreadyVisited = false;
+
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
@@ -52,8 +54,11 @@ public class LoadModelFragment extends Fragment {
                         .navigate(R.id.action_to_menu);
             }
         });
-        if(!wasAlreadyVisited){
-            wasAlreadyVisited = true;
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        if(sharedPref.getBoolean("loadNotSeen",true)){
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("loadNotSeen", false);
+            editor.apply();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setMessage(R.string.load);
             alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener(){

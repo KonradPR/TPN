@@ -36,6 +36,9 @@ public class ErrorFragment extends Fragment {
     public void onViewCreated(@NonNull  View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.textView.setText(currentException.getMessage());
+        if(isCritical){
+            binding.textView2.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -54,5 +57,13 @@ public class ErrorFragment extends Fragment {
     public static void notifyCriticalError(){isCritical = true;}
     public static void setCurrentException(Exception ex){
         currentException = ex;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(isCritical){
+            binding.textView2.setVisibility(View.VISIBLE);
+        }
     }
 }

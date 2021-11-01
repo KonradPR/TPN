@@ -2,8 +2,10 @@ package com.example.tpn;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -31,7 +33,6 @@ import java.util.regex.Pattern;
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
-    private static boolean wasAlreadyVisited = false;
 
     @Override
     public View onCreateView(
@@ -119,8 +120,12 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         checkPermissions();
         super.onViewCreated(view, savedInstanceState);
-        if(!wasAlreadyVisited){
-            wasAlreadyVisited = true;
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+        if(sharedPref.getBoolean("firstNotSeen",true)){
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("firstNotSeen", false);
+            editor.apply();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setMessage(R.string.menu);
             alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener(){

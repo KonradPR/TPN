@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.database.Cursor;
@@ -121,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
     private JSONObject manifestToLoad = null;
     private boolean useDefaultManifest = true;
     private View loadingView = null;
-    private Exception currentException = null;
 
     PreviewView mPreviewView;
     Button cameraCaptureButton;
@@ -440,9 +440,8 @@ public class MainActivity extends AppCompatActivity {
     private MappedByteBuffer loadLocalModelFile(String path) throws IOException {
         File file = new File(path);
         FileInputStream fis = null;
-
-            fis = new FileInputStream(file);
-            return fis.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
+        fis = new FileInputStream(file);
+        return fis.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
 
     }
 
@@ -455,6 +454,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        System.out.println("WEEEEEEEEEEEEEEE");
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.commit();
         if (id == R.id.action_settings) {
             return true;
         }
@@ -493,7 +497,4 @@ public class MainActivity extends AppCompatActivity {
         return manifestToLoad;
     }
 
-    public Exception getCurrentException(){
-        return currentException;
-    }
 }
