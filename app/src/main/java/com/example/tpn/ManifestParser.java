@@ -80,10 +80,10 @@ public class ManifestParser {
             }
 
             if(manifest.getBoolean("use_photos")&&(!manifest.getString("photos_source").equals("assets"))){
-                if(manifest.getString("photos_source").equals("local")){
-
-                }else if(manifest.getString("photos_source").equals("internet")){
-
+                 if(manifest.getString("photos_source").equals("internet")){
+                    if(!(manifest.getJSONArray("photo_urls").length() == manifest.getJSONArray("labels").length())){
+                        return false;
+                    }
                 }else{
                     return false;
                 }

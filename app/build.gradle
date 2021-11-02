@@ -58,6 +58,7 @@ dependencies {
     implementation 'com.google.guava:guava:31.0.1-android'
     implementation 'org.apache.commons:commons-lang3:3.6'
     testImplementation 'junit:junit:4.+'
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 

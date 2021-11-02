@@ -14,6 +14,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -65,6 +67,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.common.FileUtil;
@@ -78,6 +82,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -87,9 +95,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import android.Manifest.permission.*;
 import android.Manifest.permission_group.*;
@@ -282,6 +296,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+
+
+    public Bitmap getBitmapFromURL(String src) {
+        try {
+            java.net.URL url = new java.net.URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url
+                    .openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public void makePrediction(){
         try {
             Model model = models.get(indexOfCurrentModel);
@@ -291,20 +324,48 @@ public class MainActivity extends AppCompatActivity {
             model.getInterpreter().run(buffer, buf);
             int[] top = indexesOfTopElements(buf[0], 5);
             int[] images = new int[5];
+            Drawable[] drawables = new Drawable[5];
             String[] labels = new String[5];
+            Future<Drawable>[] futures = new Future[5];
+            ExecutorService executor = Executors.newFixedThreadPool(5);
             for (int i = 0; i < 5; i++) {
                 int j = top[i];
-                if (model.usePhotos()) {
-                    images[i] = getResources().getIdentifier("d" + (j + 1), "drawable", getPackageName());
-                } else {
+                if (model.usePhotos() && model.photosSource().equals("assets")) {
+                    drawables[i] = getResources().getDrawable(getResources().getIdentifier("d" + (j + 1), "drawable", getPackageName()));
+                    //images[i] = getResources().getIdentifier("d" + (j + 1), "drawable", getPackageName());
+                } else if(model.usePhotos() && model.photosSource().equals("internet")){
+                    futures[i] = executor.submit(new Callable<Drawable>() {
+                        @Override
+                        public Drawable call() throws Exception {
+                            Bitmap bitmap = getBitmapFromURL("https://3.allegroimg.com/s512/03174f/6c5a98b84a3ea2632c2e02949083/PODKLADKA-LAMINOWANA-A3-NA-BIURKO-KOT-KOTKI-KOTEK");
+                            Drawable d = new BitmapDrawable(getResources(),bitmap);
+                            return d;
+                        }
+                    });
+                }else {
+                    drawables[i] = getResources().getDrawable(R.drawable.placeholder);
                     images[i] = R.drawable.placeholder;
                 }
+
                 labels[i] = StringUtils.capitalize(model.getLabel(j)) + "\n" +
                         StringUtils.capitalize(model.getLatinLabel(j))
                         + "\n" + "Probability: " + String.format("%.2f", (buf[0][j] * 100)) + "%";
             }
-            CustomSwipeAdapter.image_resource = images;
+
+            if(model.usePhotos() && model.photosSource().equals("internet")) {
+                for (int i = 0; i < 5; i++) {
+                    try {
+                        Drawable d = futures[i].get(3, TimeUnit.SECONDS);
+                        drawables[i] = d;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        drawables[i] = getResources().getDrawable(R.drawable.placeholder);
+                    }
+                }
+            }
+            //CustomSwipeAdapter.image_resource = images;
             CustomSwipeAdapter.labels = labels;
+            CustomSwipeAdapter.drawables = drawables;
         }catch (ManifestException exception){
             ErrorFragment.setCurrentException(exception);
             toError();
@@ -324,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
                         manifestToLoad = null;
                     }
             }catch (IOException e){
-                ErrorFragment.setCurrentException(new FileException("There was an erroropening model file"));
+                ErrorFragment.setCurrentException(new FileException("There was an error opening model file"));
                 toError();
             }
 
@@ -360,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
             arrayList.add(model.getModelName());
         }
 
-        adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_item, arrayList);
+        adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.spiner_item, arrayList);
         ((ListView)view).setAdapter(adapter);
     }
 
@@ -384,6 +445,7 @@ public class MainActivity extends AppCompatActivity {
             throw new FileException("There was an error copying file to cache");
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -405,8 +467,9 @@ public class MainActivity extends AppCompatActivity {
             String jsonTxt = IOUtils.toString(assetFileDescriptor.createInputStream(), StandardCharsets.UTF_8);
             defaultManifest = ManifestParser.loadManifestFromString(jsonTxt);
             if(!ManifestParser.validateManifest(defaultManifest))throw new RuntimeException("Manifest is invalid!");
-            models.add(new Model(loadModelFromAssets("converted_model_2.tflite"),"Default", defaultManifest));
-            models.add(new Model(loadModelFromAssets("model.tflite"),"Fast",defaultManifest));
+            models.add(new Model(loadModelFromAssets("model_mobilenetv2_regularized.tflite"),"Mobilenet", defaultManifest));
+            models.add(new Model(loadModelFromAssets("model_pca_based.tflite"),"PCA",defaultManifest));
+            models.add(new Model(loadModelFromAssets("model_squeeze_excite_resnet.tflite"),"Resnet",defaultManifest));
         } catch (FileException ex) {
             ErrorFragment.setCurrentException(ex);
             ErrorFragment.notifyCriticalError();
@@ -454,12 +517,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        System.out.println("WEEEEEEEEEEEEEEE");
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.clear();
-        editor.commit();
+
         if (id == R.id.action_settings) {
+            System.out.println("WEEEEEEEEEEEEEEE");
+            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.clear();
+            editor.commit();
             return true;
         }
         return super.onOptionsItemSelected(item);

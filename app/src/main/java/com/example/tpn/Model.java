@@ -66,6 +66,16 @@ public class Model {
         }
     }
 
+    public String photosSource() throws ManifestException{
+        try{
+            return manifest.getString("photos_source");
+        }catch (JSONException ex){
+            throw new ManifestException("There was an error getting photo information from manifest");
+        }
+    }
+
+
+
 
 
 
