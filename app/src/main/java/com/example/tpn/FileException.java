@@ -1,6 +1,5 @@
 package com.example.tpn;
 
-import java.io.File;
 
 public class FileException extends Exception {
 

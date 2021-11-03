@@ -1,22 +1,14 @@
 package com.example.tpn;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Size;
@@ -27,8 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.camera.core.Camera;
@@ -41,18 +31,12 @@ import androidx.camera.core.Preview;
 import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.viewpager.widget.ViewPager;
-
 
 import com.example.tpn.databinding.ActivityMainBinding;
 import com.google.common.io.ByteStreams;
@@ -65,37 +49,22 @@ import android.view.MenuItem;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.tensorflow.lite.DataType;
-import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.support.common.FileUtil;
 import org.tensorflow.lite.support.image.TensorImage;
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -103,21 +72,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.Manifest.permission.*;
-import android.Manifest.permission_group.*;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import static android.content.res.AssetManager.ACCESS_BUFFER;
 import static android.os.ParcelFileDescriptor.MODE_READ_ONLY;
-import static androidx.camera.core.CameraX.getContext;
-//import android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 
 public class MainActivity extends AppCompatActivity {
     private int FILE_PICKER_REQUEST_CODE_JSON = 0;

@@ -1,14 +1,9 @@
 package com.example.tpn;
 
-import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.renderscript.ScriptIntrinsicYuvToRGB;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +16,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-
 import com.example.tpn.databinding.SelectFragmentBinding;
 
-import java.util.ArrayList;
 
 public class SelectFragment extends Fragment {
     private SelectFragmentBinding binding;

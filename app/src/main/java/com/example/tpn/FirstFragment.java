@@ -1,13 +1,11 @@
 package com.example.tpn;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,10 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.tpn.databinding.FragmentFirstBinding;
-import com.google.android.material.snackbar.Snackbar;
-import com.nbsp.materialfilepicker.MaterialFilePicker;
-
-import java.util.regex.Pattern;
 
 public class FirstFragment extends Fragment {
 

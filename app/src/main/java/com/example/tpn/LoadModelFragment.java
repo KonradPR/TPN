@@ -13,7 +13,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.tpn.databinding.FragmentFirstBinding;
 import com.example.tpn.databinding.LoadModelFragmentBinding;
 
 public class LoadModelFragment extends Fragment {
