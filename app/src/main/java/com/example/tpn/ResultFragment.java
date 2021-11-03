@@ -39,6 +39,11 @@ public class ResultFragment extends Fragment {
     }
 
 
+    public void hide(){
+        binding.progressbar.setVisibility(View.VISIBLE);
+        binding.check.setVisibility(View.GONE);
+        binding.viewPager.setVisibility(View.GONE);
+    }
 
     public void show(){
         binding.progressbar.setVisibility(View.GONE);
@@ -47,6 +52,7 @@ public class ResultFragment extends Fragment {
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        hide();
         ((MainActivity)getActivity()).makePrediction();
         show();
         super.onViewCreated(view, savedInstanceState);

@@ -20,13 +20,20 @@ public class ManifestParser {
                 return false;
             }
 
-            if (!manifest.has("latin_labels")) {
+            if(!manifest.has("use_latin")){
                 return false;
+            }else{
+                if(manifest.getBoolean("use_latin")){
+                    if (!manifest.has("latin_labels")) {
+                        return false;
+                    }
+
+                    if (manifest.getJSONArray("labels").length()!=manifest.getJSONArray("latin_labels").length()){
+                        return false;
+                    }
+                }
             }
 
-            if (manifest.getJSONArray("labels").length()!=manifest.getJSONArray("latin_labels").length()){
-                return false;
-            }
 
             if(!manifest.has("input_type")){
                 return false;
@@ -89,10 +96,10 @@ public class ManifestParser {
                 }
             }
 
-
         }catch (JSONException e){
             return false;
         }
+
         return true;
     }
 

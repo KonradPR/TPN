@@ -74,4 +74,44 @@ public class Model {
         }
     }
 
+    public String inputType() throws ManifestException{
+        try{
+            System.out.println(manifest.getString("input_type"));
+            return manifest.getString("input_type");
+        }catch (JSONException ex){
+            throw new ManifestException("There was an error getting input type from manifest");
+        }
+    }
+
+    public String outputType() throws ManifestException{
+        try{
+            return manifest.getString("output_type");
+        }catch (JSONException ex){
+            throw new ManifestException("There was an error getting output type from manifest");
+        }
+    }
+
+    public int outputSize() throws ManifestException{
+        try{
+            return manifest.getJSONArray("output_size").getInt(1);
+        }catch (JSONException ex){
+            throw new ManifestException("There was an error getting output size from manifest");
+        }
+    }
+
+    public boolean useLatin() throws ManifestException{
+        try{
+            return manifest.getBoolean("use_latin");
+        }catch (JSONException ex){
+            throw new ManifestException("There was an error establishing need to use latin labels");
+        }
+    }
+
+    public String getPhotoUrl(int i) throws ManifestException{
+        try{
+            return manifest.getJSONArray("photo_urls").getString(i);
+        }catch (JSONException ex){
+            throw new ManifestException("There was an error getting photo url for given index");
+        }
+    }
 }

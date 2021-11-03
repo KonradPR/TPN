@@ -573,6 +573,7 @@
     "Symphytum cordatum",
     "Corallorhiza trifida"
   ],
+  "use_latin": true,
   "use_photos": true,
   "photos_source": "assets",
   "input_type": "UINT8",

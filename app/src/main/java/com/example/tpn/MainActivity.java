@@ -208,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
                         buffer.get(bytes);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
                         currentBitmap = Bitmap.createScaledBitmap(bitmap,224,224,false);
-                        super.onCaptureSuccess(image);
                         toResult();
+                        super.onCaptureSuccess(image);
                     }
 
                     @Override
@@ -317,11 +317,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void makePrediction(){
         try {
+
             Model model = models.get(indexOfCurrentModel);
+            float[][] buf = new float[1][model.outputSize()];
             currentBitmap = Bitmap.createScaledBitmap(currentBitmap, model.getFirstDim(), model.getSecondDim(), false);
-            float[][] buf = new float[1][285];
-            ByteBuffer buffer = TensorImage.fromBitmap(currentBitmap).getBuffer();
-            model.getInterpreter().run(buffer, buf);
+            if(model.inputType().equals("FLOAT32")){
+                TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
+                tensorImage.load(currentBitmap);
+                model.getInterpreter().run(tensorImage.getBuffer(), buf);
+            }else{
+                ByteBuffer buffer = TensorImage.fromBitmap(currentBitmap).getBuffer();
+                model.getInterpreter().run(buffer, buf);
+            }
+
             int[] top = indexesOfTopElements(buf[0], 5);
             int[] images = new int[5];
             Drawable[] drawables = new Drawable[5];
@@ -332,12 +340,11 @@ public class MainActivity extends AppCompatActivity {
                 int j = top[i];
                 if (model.usePhotos() && model.photosSource().equals("assets")) {
                     drawables[i] = getResources().getDrawable(getResources().getIdentifier("d" + (j + 1), "drawable", getPackageName()));
-                    //images[i] = getResources().getIdentifier("d" + (j + 1), "drawable", getPackageName());
                 } else if(model.usePhotos() && model.photosSource().equals("internet")){
                     futures[i] = executor.submit(new Callable<Drawable>() {
                         @Override
                         public Drawable call() throws Exception {
-                            Bitmap bitmap = getBitmapFromURL("https://3.allegroimg.com/s512/03174f/6c5a98b84a3ea2632c2e02949083/PODKLADKA-LAMINOWANA-A3-NA-BIURKO-KOT-KOTKI-KOTEK");
+                            Bitmap bitmap = getBitmapFromURL(model.getPhotoUrl(j));
                             Drawable d = new BitmapDrawable(getResources(),bitmap);
                             return d;
                         }
@@ -347,9 +354,15 @@ public class MainActivity extends AppCompatActivity {
                     images[i] = R.drawable.placeholder;
                 }
 
-                labels[i] = StringUtils.capitalize(model.getLabel(j)) + "\n" +
-                        StringUtils.capitalize(model.getLatinLabel(j))
-                        + "\n" + "Probability: " + String.format("%.2f", (buf[0][j] * 100)) + "%";
+                if(model.useLatin()){
+                    labels[i] = StringUtils.capitalize(model.getLabel(j)) + "\n" +
+                            StringUtils.capitalize(model.getLatinLabel(j))
+                            + "\n" + "Probability: " + String.format("%.2f", (buf[0][j] * 100)) + "%";
+                }else{
+                    labels[i] = StringUtils.capitalize(model.getLabel(j))
+                            + "\n" + "Probability: " + String.format("%.2f", (buf[0][j] * 100)) + "%";
+                }
+
             }
 
             if(model.usePhotos() && model.photosSource().equals("internet")) {
@@ -363,7 +376,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-            //CustomSwipeAdapter.image_resource = images;
             CustomSwipeAdapter.labels = labels;
             CustomSwipeAdapter.drawables = drawables;
         }catch (ManifestException exception){
@@ -460,6 +472,14 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             String assetPath = "manifest.json";
+            //String assetPath1 = "mtest.json";
+            //final File cacheFile1 = new File(getCacheDir(), assetPath1);
+            //cacheFile1.getParentFile().mkdirs();
+            //copyToCacheFile(assetPath1, cacheFile1);
+            //AssetFileDescriptor assetFileDescriptor1 = new AssetFileDescriptor(ParcelFileDescriptor.open(cacheFile1, MODE_READ_ONLY), 0, -1);//getAssets().openFd("file:///android_asset/manifest.json");
+            //String jsonTxt1 = IOUtils.toString(assetFileDescriptor1.createInputStream(), StandardCharsets.UTF_8);
+            //System.out.println(jsonTxt1);
+            //models.add(new Model(loadModelFromAssets("test.tflite"),"test",ManifestParser.loadManifestFromString(jsonTxt1)));
             final File cacheFile = new File(getCacheDir(), assetPath);
             cacheFile.getParentFile().mkdirs();
             copyToCacheFile(assetPath, cacheFile);
@@ -475,6 +495,7 @@ public class MainActivity extends AppCompatActivity {
             ErrorFragment.notifyCriticalError();
             toError();
         } catch (ManifestException ex){
+            ex.printStackTrace();
             ErrorFragment.setCurrentException(ex);
             ErrorFragment.notifyCriticalError();
             toError();
