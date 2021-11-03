@@ -41,27 +41,27 @@ public class LoadModelFragment extends Fragment {
         binding.buttonManifest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity)getActivity()).loadManifest(view);
+                ((MainActivity) getActivity()).loadManifest(view);
 
             }
         });
         binding.buttonLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity)getActivity()).modelName = String.valueOf(binding.editTextModelName.getText());
-                ((MainActivity)getActivity()).pick();
+                ((MainActivity) getActivity()).modelName = String.valueOf(binding.editTextModelName.getText());
+                ((MainActivity) getActivity()).pick();
                 NavHostFragment.findNavController(LoadModelFragment.this)
                         .navigate(R.id.action_to_menu);
             }
         });
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        if(sharedPref.getBoolean("loadNotSeen",true)){
+        if (sharedPref.getBoolean("loadNotSeen", true)) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("loadNotSeen", false);
             editor.apply();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setMessage(R.string.load);
-            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener(){
+            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {

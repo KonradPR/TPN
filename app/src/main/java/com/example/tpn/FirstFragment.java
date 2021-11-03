@@ -101,10 +101,10 @@ public class FirstFragment extends Fragment {
         }
 
 
-        if(Integer.valueOf(android.os.Build.VERSION.SDK)>=30){
-            if (Environment.isExternalStorageManager()){
+        if (Integer.valueOf(android.os.Build.VERSION.SDK) >= 30) {
+            if (Environment.isExternalStorageManager()) {
 
-            }else{
+            } else {
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                 Uri uri = Uri.fromParts("package", this.getActivity().getPackageName(), null);
@@ -122,13 +122,13 @@ public class FirstFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
-        if(sharedPref.getBoolean("firstNotSeen",true)){
+        if (sharedPref.getBoolean("firstNotSeen", true)) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("firstNotSeen", false);
             editor.apply();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setMessage(R.string.menu);
-            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener(){
+            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -164,7 +164,7 @@ public class FirstFragment extends Fragment {
         binding.buttonFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity)getActivity()).getPhotoFromGallery();
+                ((MainActivity) getActivity()).getPhotoFromGallery();
             }
         });
 

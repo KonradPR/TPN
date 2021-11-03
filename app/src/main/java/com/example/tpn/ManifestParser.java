@@ -1,6 +1,5 @@
 package com.example.tpn;
 
-import android.content.res.AssetFileDescriptor;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -8,95 +7,93 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ManifestParser {
 
-    static public boolean validateManifest(JSONObject manifest){
+    static public boolean validateManifest(JSONObject manifest) {
         try {
             if (!manifest.has("labels")) {
                 return false;
             }
 
-            if(!manifest.has("use_latin")){
+            if (!manifest.has("use_latin")) {
                 return false;
-            }else{
-                if(manifest.getBoolean("use_latin")){
+            } else {
+                if (manifest.getBoolean("use_latin")) {
                     if (!manifest.has("latin_labels")) {
                         return false;
                     }
 
-                    if (manifest.getJSONArray("labels").length()!=manifest.getJSONArray("latin_labels").length()){
+                    if (manifest.getJSONArray("labels").length() != manifest.getJSONArray("latin_labels").length()) {
                         return false;
                     }
                 }
             }
 
 
-            if(!manifest.has("input_type")){
+            if (!manifest.has("input_type")) {
                 return false;
             }
 
-            if(!((manifest.getString("input_type").equals("UINT8"))||(manifest.getString("input_type").equals("FLOAT32")))){
+            if (!((manifest.getString("input_type").equals("UINT8")) || (manifest.getString("input_type").equals("FLOAT32")))) {
                 return false;
             }
 
-            if(!manifest.has("input_size")){
+            if (!manifest.has("input_size")) {
                 return false;
             }
 
-            if(!(manifest.getJSONArray("input_size").length() ==2)){
+            if (!(manifest.getJSONArray("input_size").length() == 2)) {
                 return false;
             }
 
-            if(!manifest.has("output_size")){
+            if (!manifest.has("output_size")) {
                 return false;
             }
 
-            if(!(manifest.getJSONArray("output_size").length()==2)){
+            if (!(manifest.getJSONArray("output_size").length() == 2)) {
                 return false;
             }
 
-            if(manifest.getJSONArray("labels").length() != manifest.getJSONArray("output_size").getInt(1)){
+            if (manifest.getJSONArray("labels").length() != manifest.getJSONArray("output_size").getInt(1)) {
                 return false;
             }
 
-            if(!manifest.has("output_type")){
+            if (!manifest.has("output_type")) {
                 return false;
             }
 
-            if(!(manifest.getString("output_type").equals("FLOAT32"))|| (manifest.getString("output_type").equals("UINT8"))){
+            if (!(manifest.getString("output_type").equals("FLOAT32"))) {
                 return false;
             }
 
-            if(!manifest.has("use_photos")){
+            if (!manifest.has("use_photos")) {
                 return false;
             }
 
-            if(manifest.getBoolean("use_photos")&&(!manifest.has("photos_source"))){
+            if (manifest.getBoolean("use_photos") && (!manifest.has("photos_source"))) {
                 return false;
             }
 
-            if(manifest.getBoolean("use_photos")&&(manifest.getString("photos_source").equals("assets"))){
-                if(manifest.getJSONArray("output_size").getInt(1) !=285){
+            if (manifest.getBoolean("use_photos") && (manifest.getString("photos_source").equals("assets"))) {
+                if (manifest.getJSONArray("output_size").getInt(1) != 285) {
 
                     return false;
                 }
             }
 
-            if(manifest.getBoolean("use_photos")&&(!manifest.getString("photos_source").equals("assets"))){
-                 if(manifest.getString("photos_source").equals("internet")){
-                    if(!(manifest.getJSONArray("photo_urls").length() == manifest.getJSONArray("labels").length())){
+            if (manifest.getBoolean("use_photos") && (!manifest.getString("photos_source").equals("assets"))) {
+                if (manifest.getString("photos_source").equals("internet")) {
+                    if (!(manifest.getJSONArray("photo_urls").length() == manifest.getJSONArray("labels").length())) {
                         return false;
                     }
-                }else{
+                } else {
                     return false;
                 }
             }
 
-        }catch (JSONException e){
+        } catch (JSONException e) {
             return false;
         }
 
@@ -109,19 +106,21 @@ public class ManifestParser {
             InputStream is = new FileInputStream(file);
             String jsonTxt = IOUtils.toString(is, "UTF-8");
             JSONObject manifest = new JSONObject(jsonTxt);
-            if(!ManifestParser.validateManifest(manifest)) throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
+            if (!ManifestParser.validateManifest(manifest))
+                throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
             return manifest;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             throw new ManifestException("There was an error loading model's manifest");
         }
     }
 
-    static public JSONObject loadManifestFromString(String jsonTxt) throws  ManifestException {
+    static public JSONObject loadManifestFromString(String jsonTxt) throws ManifestException {
         try {
             JSONObject manifest = new JSONObject(jsonTxt);
-            if(!ManifestParser.validateManifest(manifest))throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
+            if (!ManifestParser.validateManifest(manifest))
+                throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
             return manifest;
-        } catch (JSONException ex){
+        } catch (JSONException ex) {
             throw new ManifestException("There was an error loading model's manifest");
         }
     }

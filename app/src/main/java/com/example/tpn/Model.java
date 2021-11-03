@@ -17,31 +17,31 @@ public class Model {
         this.manifest = manifest;
     }
 
-    public String getModelName(){
+    public String getModelName() {
         return modelName;
     }
 
-    public Interpreter getInterpreter(){
+    public Interpreter getInterpreter() {
         return interpreter;
     }
 
     public String getLabel(int i) throws ManifestException {
         try {
             return manifest.getJSONArray("labels").getString(i);
-        }catch (JSONException e){
+        } catch (JSONException e) {
             throw new ManifestException("There was an error getting a specific label from the model's manifest");
         }
     }
 
-    public String getLatinLabel(int i) throws ManifestException{
+    public String getLatinLabel(int i) throws ManifestException {
         try {
             return manifest.getJSONArray("latin_labels").getString(i);
-        }catch (JSONException e){
+        } catch (JSONException e) {
             throw new ManifestException("There was an error getting a specific label from the model's manifest");
         }
     }
 
-    public int getFirstDim() throws ManifestException{
+    public int getFirstDim() throws ManifestException {
         try {
             return manifest.getJSONArray("input_size").getInt(0);
         } catch (JSONException e) {
@@ -49,7 +49,7 @@ public class Model {
         }
     }
 
-    public int getSecondDim() throws ManifestException{
+    public int getSecondDim() throws ManifestException {
         try {
             return manifest.getJSONArray("input_size").getInt(1);
         } catch (JSONException e) {
@@ -58,7 +58,7 @@ public class Model {
 
     }
 
-    public boolean usePhotos() throws ManifestException{
+    public boolean usePhotos() throws ManifestException {
         try {
             return manifest.getBoolean("use_photos");
         } catch (JSONException e) {
@@ -66,51 +66,44 @@ public class Model {
         }
     }
 
-    public String photosSource() throws ManifestException{
-        try{
+    public String photosSource() throws ManifestException {
+        try {
             return manifest.getString("photos_source");
-        }catch (JSONException ex){
+        } catch (JSONException ex) {
             throw new ManifestException("There was an error getting photo information from manifest");
         }
     }
 
-    public String inputType() throws ManifestException{
-        try{
+    public String inputType() throws ManifestException {
+        try {
             System.out.println(manifest.getString("input_type"));
             return manifest.getString("input_type");
-        }catch (JSONException ex){
+        } catch (JSONException ex) {
             throw new ManifestException("There was an error getting input type from manifest");
         }
     }
 
-    public String outputType() throws ManifestException{
-        try{
-            return manifest.getString("output_type");
-        }catch (JSONException ex){
-            throw new ManifestException("There was an error getting output type from manifest");
-        }
-    }
 
-    public int outputSize() throws ManifestException{
-        try{
+    public int outputSize() throws ManifestException {
+        try {
             return manifest.getJSONArray("output_size").getInt(1);
-        }catch (JSONException ex){
+        } catch (JSONException ex) {
             throw new ManifestException("There was an error getting output size from manifest");
         }
     }
 
-    public boolean useLatin() throws ManifestException{
-        try{
+    public boolean useLatin() throws ManifestException {
+        try {
             return manifest.getBoolean("use_latin");
-        }catch (JSONException ex){
+        } catch (JSONException ex) {
             throw new ManifestException("There was an error establishing need to use latin labels");
         }
     }
 
-    public String getPhotoUrl(int i) throws ManifestException{
-        try{
+    public String getPhotoUrl(int i) throws ManifestException {
+        try {
             return manifest.getJSONArray("photo_urls").getString(i);
-        }catch (JSONException ex){
+        } catch (JSONException ex) {
             throw new ManifestException("There was an error getting photo url for given index");
         }
     }

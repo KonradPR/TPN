@@ -33,10 +33,10 @@ public class ErrorFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull  View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.textView.setText(currentException.getMessage());
-        if(isCritical){
+        if (isCritical) {
             binding.textView2.setVisibility(View.VISIBLE);
         }
     }
@@ -44,7 +44,7 @@ public class ErrorFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if(isCritical){
+        if (isCritical) {
             PackageManager packageManager = getContext().getPackageManager();
             Intent intent = packageManager.getLaunchIntentForPackage(getContext().getPackageName());
             ComponentName componentName = intent.getComponent();
@@ -54,15 +54,18 @@ public class ErrorFragment extends Fragment {
         }
     }
 
-    public static void notifyCriticalError(){isCritical = true;}
-    public static void setCurrentException(Exception ex){
+    public static void notifyCriticalError() {
+        isCritical = true;
+    }
+
+    public static void setCurrentException(Exception ex) {
         currentException = ex;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if(isCritical){
+        if (isCritical) {
             binding.textView2.setVisibility(View.VISIBLE);
         }
     }

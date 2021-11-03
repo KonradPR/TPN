@@ -42,17 +42,17 @@ public class SelectFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable  Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((MainActivity)getActivity()).setUpSelection(binding.list);
+        ((MainActivity) getActivity()).setUpSelection(binding.list);
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        if(sharedPref.getBoolean("selectNotSeen",true)){
+        if (sharedPref.getBoolean("selectNotSeen", true)) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("selectNotSeen", false);
             editor.apply();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setMessage(R.string.select);
-            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener(){
+            alertDialogBuilder.setNegativeButton("ok", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -64,8 +64,8 @@ public class SelectFragment extends Fragment {
         binding.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                System.out.println( ((String) adapterView.getItemAtPosition(i)));
-                ((MainActivity)getActivity()).setIndexOfCurrentModel(i);
+                System.out.println(((String) adapterView.getItemAtPosition(i)));
+                ((MainActivity) getActivity()).setIndexOfCurrentModel(i);
                 NavHostFragment.findNavController(SelectFragment.this)
                         .navigate(R.id.action_to_menu);
             }

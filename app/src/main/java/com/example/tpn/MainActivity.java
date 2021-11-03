@@ -105,6 +105,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import android.Manifest.permission.*;
 import android.Manifest.permission_group.*;
 import android.view.ViewGroup;
@@ -119,9 +120,9 @@ import static androidx.camera.core.CameraX.getContext;
 //import android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
-    private  int FILE_PICKER_REQUEST_CODE_JSON = 0;
-    private  int FILE_PICKER_REQUEST_CODE = 1;
-    private  int FILE_PICKER_REQUEST_CODE_JPG = 2;
+    private int FILE_PICKER_REQUEST_CODE_JSON = 0;
+    private int FILE_PICKER_REQUEST_CODE = 1;
+    private int FILE_PICKER_REQUEST_CODE_JPG = 2;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     public String modelName;
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
 
-        }
+    }
 
 
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
@@ -194,26 +195,26 @@ public class MainActivity extends AppCompatActivity {
                 .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
                 .build();
         preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis, imageCapture);
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageAnalysis, imageCapture);
 
         cameraCaptureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
                     @Override
-                    public void onCaptureSuccess(@NonNull  ImageProxy image) {
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                         buffer.rewind();
-                        byte[] bytes = new byte[ buffer.remaining()];
+                        byte[] bytes = new byte[buffer.remaining()];
                         buffer.get(bytes);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
-                        currentBitmap = Bitmap.createScaledBitmap(bitmap,224,224,false);
+                        currentBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, false);
                         toResult();
                         super.onCaptureSuccess(image);
                     }
 
                     @Override
-                    public void onError(@NonNull  ImageCaptureException exception) {
+                    public void onError(@NonNull ImageCaptureException exception) {
                         super.onError(exception);
                     }
                 });
@@ -221,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void pick(){
+    public void pick() {
         new MaterialFilePicker()
                 .withActivity(this)
                 .withCloseMenu(true)
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
-    public void loadManifest(View view){
+    public void loadManifest(View view) {
         loadingView = view;
         new MaterialFilePicker()
                 .withActivity(this)
@@ -245,48 +246,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    public void getPhotoFromGallery(){
-        Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+    public void getPhotoFromGallery() {
+        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, FILE_PICKER_REQUEST_CODE_JPG);
     }
 
     static int[] indexesOfTopElements(float[] orig, int nummax) {
-        float[] copy = Arrays.copyOf(orig,orig.length);
+        float[] copy = Arrays.copyOf(orig, orig.length);
         Arrays.sort(copy);
-        float[] honey = Arrays.copyOfRange(copy,copy.length - nummax, copy.length);
+        float[] honey = Arrays.copyOfRange(copy, copy.length - nummax, copy.length);
         int[] result = new int[nummax];
         int resultPos = 0;
-        for(int i = 0; i < orig.length; i++) {
+        for (int i = 0; i < orig.length; i++) {
             float onTrial = orig[i];
-            int index = Arrays.binarySearch(honey,onTrial);
-            if(index < 0) continue;
+            int index = Arrays.binarySearch(honey, onTrial);
+            if (index < 0) continue;
             result[resultPos++] = i;
         }
-        for (int i = 0; i < nummax-1; i++)
-            for (int j = 0; j < nummax-i-1; j++){
-                if (orig[result[j]] < orig[result[j+1]])
-                {
+        for (int i = 0; i < nummax - 1; i++)
+            for (int j = 0; j < nummax - i - 1; j++) {
+                if (orig[result[j]] < orig[result[j + 1]]) {
                     int temp = result[j];
-                    result[j] = result[j+1];
-                    result[j+1] = temp;
+                    result[j] = result[j + 1];
+                    result[j + 1] = temp;
                 }
             }
         return result;
     }
 
 
-    private void toResult(){
+    private void toResult() {
         MainActivity act = this;
 
-        this.runOnUiThread(new Runnable( ) {
+        this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Navigation.findNavController(act, R.id.nav_host_fragment_content_main).navigate(R.id.action_to_ResultFragment);
-            }});
+            }
+        });
     }
 
-    public void toError(){
+    public void toError() {
         MainActivity act = this;
         this.runOnUiThread(new Runnable() {
             @Override
@@ -295,8 +295,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
 
     public Bitmap getBitmapFromURL(String src) {
@@ -315,17 +313,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void makePrediction(){
+    public void makePrediction() {
         try {
 
             Model model = models.get(indexOfCurrentModel);
             float[][] buf = new float[1][model.outputSize()];
             currentBitmap = Bitmap.createScaledBitmap(currentBitmap, model.getFirstDim(), model.getSecondDim(), false);
-            if(model.inputType().equals("FLOAT32")){
+            if (model.inputType().equals("FLOAT32")) {
                 TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
                 tensorImage.load(currentBitmap);
                 model.getInterpreter().run(tensorImage.getBuffer(), buf);
-            }else{
+            } else {
                 ByteBuffer buffer = TensorImage.fromBitmap(currentBitmap).getBuffer();
                 model.getInterpreter().run(buffer, buf);
             }
@@ -340,32 +338,32 @@ public class MainActivity extends AppCompatActivity {
                 int j = top[i];
                 if (model.usePhotos() && model.photosSource().equals("assets")) {
                     drawables[i] = getResources().getDrawable(getResources().getIdentifier("d" + (j + 1), "drawable", getPackageName()));
-                } else if(model.usePhotos() && model.photosSource().equals("internet")){
+                } else if (model.usePhotos() && model.photosSource().equals("internet")) {
                     futures[i] = executor.submit(new Callable<Drawable>() {
                         @Override
                         public Drawable call() throws Exception {
                             Bitmap bitmap = getBitmapFromURL(model.getPhotoUrl(j));
-                            Drawable d = new BitmapDrawable(getResources(),bitmap);
+                            Drawable d = new BitmapDrawable(getResources(), bitmap);
                             return d;
                         }
                     });
-                }else {
+                } else {
                     drawables[i] = getResources().getDrawable(R.drawable.placeholder);
                     images[i] = R.drawable.placeholder;
                 }
 
-                if(model.useLatin()){
+                if (model.useLatin()) {
                     labels[i] = StringUtils.capitalize(model.getLabel(j)) + "\n" +
                             StringUtils.capitalize(model.getLatinLabel(j))
                             + "\n" + "Probability: " + String.format("%.2f", (buf[0][j] * 100)) + "%";
-                }else{
+                } else {
                     labels[i] = StringUtils.capitalize(model.getLabel(j))
                             + "\n" + "Probability: " + String.format("%.2f", (buf[0][j] * 100)) + "%";
                 }
 
             }
 
-            if(model.usePhotos() && model.photosSource().equals("internet")) {
+            if (model.usePhotos() && model.photosSource().equals("internet")) {
                 for (int i = 0; i < 5; i++) {
                     try {
                         Drawable d = futures[i].get(3, TimeUnit.SECONDS);
@@ -378,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
             }
             CustomSwipeAdapter.labels = labels;
             CustomSwipeAdapter.drawables = drawables;
-        }catch (ManifestException exception){
+        } catch (ManifestException exception) {
             ErrorFragment.setCurrentException(exception);
             toError();
         }
@@ -390,35 +388,35 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             try {
                 String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-                    if (manifestToLoad == null) {
-                        models.add(new Model(loadLocalModelFile(path), modelName, defaultManifest));
-                    } else {
-                        models.add(new Model(loadLocalModelFile(path), modelName, manifestToLoad));
-                        manifestToLoad = null;
-                    }
-            }catch (IOException e){
+                if (manifestToLoad == null) {
+                    models.add(new Model(loadLocalModelFile(path), modelName, defaultManifest));
+                } else {
+                    models.add(new Model(loadLocalModelFile(path), modelName, manifestToLoad));
+                    manifestToLoad = null;
+                }
+            } catch (IOException e) {
                 ErrorFragment.setCurrentException(new FileException("There was an error opening model file"));
                 toError();
             }
 
-        }else if(requestCode == FILE_PICKER_REQUEST_CODE_JPG && resultCode == Activity.RESULT_OK){
+        } else if (requestCode == FILE_PICKER_REQUEST_CODE_JPG && resultCode == Activity.RESULT_OK) {
             try {
                 Uri selectedImage = data.getData();
                 Bitmap bitmap = null;
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 currentBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, false);
                 toResult();
-            }catch (IOException ex){
+            } catch (IOException ex) {
                 ErrorFragment.setCurrentException(new FileException("There was an error loading file from gallery"));
                 toError();
             }
 
-        } else if(requestCode == FILE_PICKER_REQUEST_CODE_JSON && resultCode == Activity.RESULT_OK){
+        } else if (requestCode == FILE_PICKER_REQUEST_CODE_JSON && resultCode == Activity.RESULT_OK) {
             String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             try {
                 manifestToLoad = ManifestParser.loadManifestFromStorage(path);
-                ((Button)((ViewGroup)loadingView.getParent()).getChildAt(2)).setEnabled(true);
-            }catch (ManifestException ex){
+                ((Button) ((ViewGroup) loadingView.getParent()).getChildAt(2)).setEnabled(true);
+            } catch (ManifestException ex) {
                 manifestToLoad = null;
                 ErrorFragment.setCurrentException(ex);
                 toError();
@@ -426,20 +424,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setUpSelection(View view){
+    public void setUpSelection(View view) {
 
         arrayList = new ArrayList<String>();
-        for(Model model: models){
+        for (Model model : models) {
             arrayList.add(model.getModelName());
         }
 
         adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.spiner_item, arrayList);
-        ((ListView)view).setAdapter(adapter);
+        ((ListView) view).setAdapter(adapter);
     }
 
 
-    private void copyToCacheFile(final String assetPath, final File cacheFile) throws FileException
-    {
+    private void copyToCacheFile(final String assetPath, final File cacheFile) throws FileException {
         try {
             final InputStream inputStream = getAssets().open(assetPath, ACCESS_BUFFER);
             try {
@@ -453,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
             } finally {
                 inputStream.close();
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             throw new FileException("There was an error copying file to cache");
         }
     }
@@ -486,15 +483,16 @@ public class MainActivity extends AppCompatActivity {
             AssetFileDescriptor assetFileDescriptor = new AssetFileDescriptor(ParcelFileDescriptor.open(cacheFile, MODE_READ_ONLY), 0, -1);//getAssets().openFd("file:///android_asset/manifest.json");
             String jsonTxt = IOUtils.toString(assetFileDescriptor.createInputStream(), StandardCharsets.UTF_8);
             defaultManifest = ManifestParser.loadManifestFromString(jsonTxt);
-            if(!ManifestParser.validateManifest(defaultManifest))throw new RuntimeException("Manifest is invalid!");
-            models.add(new Model(loadModelFromAssets("model_mobilenetv2_regularized.tflite"),"Mobilenet", defaultManifest));
-            models.add(new Model(loadModelFromAssets("model_pca_based.tflite"),"PCA",defaultManifest));
-            models.add(new Model(loadModelFromAssets("model_squeeze_excite_resnet.tflite"),"Resnet",defaultManifest));
+            if (!ManifestParser.validateManifest(defaultManifest))
+                throw new RuntimeException("Manifest is invalid!");
+            models.add(new Model(loadModelFromAssets("model_mobilenetv2_regularized.tflite"), "Mobilenet", defaultManifest));
+            models.add(new Model(loadModelFromAssets("model_pca_based.tflite"), "PCA", defaultManifest));
+            models.add(new Model(loadModelFromAssets("model_squeeze_excite_resnet.tflite"), "Resnet", defaultManifest));
         } catch (FileException ex) {
             ErrorFragment.setCurrentException(ex);
             ErrorFragment.notifyCriticalError();
             toError();
-        } catch (ManifestException ex){
+        } catch (ManifestException ex) {
             ex.printStackTrace();
             ErrorFragment.setCurrentException(ex);
             ErrorFragment.notifyCriticalError();
@@ -508,15 +506,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private MappedByteBuffer loadModelFromAssets(String fileName) throws FileException {
-        try{
-        AssetFileDescriptor fileDescriptor = getAssets().openFd(fileName);
-        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
-        long startOffset = fileDescriptor.getStartOffset();
-        long declaredLength = fileDescriptor.getDeclaredLength();
+        try {
+            AssetFileDescriptor fileDescriptor = getAssets().openFd(fileName);
+            FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+            long startOffset = fileDescriptor.getStartOffset();
+            long declaredLength = fileDescriptor.getDeclaredLength();
 
-        FileChannel fileChannel = inputStream.getChannel();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
-        }catch (Exception ex){
+            FileChannel fileChannel = inputStream.getChannel();
+            return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+        } catch (Exception ex) {
             throw new FileException("There was an error accessing model asset");
         }
     }
@@ -562,23 +560,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    public void onCheckboxClicked(View view){
+    public void onCheckboxClicked(View view) {
         useDefaultManifest = !useDefaultManifest;
-        ((Button)((ViewGroup)view.getParent()).getChildAt(3)).setEnabled(!useDefaultManifest);
-        ((Button)((ViewGroup)view.getParent()).getChildAt(2)).setEnabled(useDefaultManifest);
+        ((Button) ((ViewGroup) view.getParent()).getChildAt(3)).setEnabled(!useDefaultManifest);
+        ((Button) ((ViewGroup) view.getParent()).getChildAt(2)).setEnabled(useDefaultManifest);
 
     }
 
-    public void setIndexOfCurrentModel(int i){
+    public void setIndexOfCurrentModel(int i) {
         indexOfCurrentModel = i;
     }
 
-    public String getModelName(){
-       return models.get(indexOfCurrentModel).getModelName();
+    public String getModelName() {
+        return models.get(indexOfCurrentModel).getModelName();
     }
 
-    public JSONObject getManifestToLoad(){
+    public JSONObject getManifestToLoad() {
         return manifestToLoad;
     }
 
