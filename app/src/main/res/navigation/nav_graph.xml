@@ -25,9 +25,6 @@
         <action
             android:id="@+id/action_to_ResultFragment"
             app:destination="@id/ResultFragment" />
-        <action
-            android:id="@+id/action_to_error"
-            app:destination="@id/ErrorFragment" />
     </fragment>
     <fragment
         android:id="@+id/CameraFragment"
@@ -38,17 +35,11 @@
         <action android:id="@+id/action_to_ErrorFragment"
             app:destination="@+id/ErrorFragment"/>
         <action
-            android:id="@+id/action_take_photo"
-            app:destination="@id/ResultFragment" />
-        <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
         <action
             android:id="@+id/action_to_ResultFragment"
             app:destination="@id/ResultFragment" />
-        <action
-            android:id="@+id/action_to_error"
-            app:destination="@id/ErrorFragment" />
     </fragment>
 
     <fragment
@@ -62,9 +53,6 @@
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
-        <action
-            android:id="@+id/action_to_error"
-            app:destination="@id/ErrorFragment" />
 
     </fragment>
 
@@ -92,9 +80,6 @@
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
-        <action
-            android:id="@+id/action_to_error"
-            app:destination="@id/ErrorFragment" />
     </fragment>
 
     <fragment
@@ -108,9 +93,6 @@
         <action
             android:id="@+id/action_to_menu"
             app:destination="@id/FirstFragment" />
-        <action
-            android:id="@+id/action_to_error"
-            app:destination="@id/ErrorFragment" />
     </fragment>
 
 
