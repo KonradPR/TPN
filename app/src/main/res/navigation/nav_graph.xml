@@ -22,9 +22,7 @@
         <action
             android:id="@+id/action_to_LoadModelFragment"
             app:destination="@id/LoadModelFragment" />
-        <action
-            android:id="@+id/action_to_ResultFragment"
-            app:destination="@id/ResultFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/CameraFragment"

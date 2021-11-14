@@ -84,31 +84,30 @@ import static android.os.ParcelFileDescriptor.MODE_READ_ONLY;
 
 
 public class MainActivity extends AppCompatActivity {
-    private int FILE_PICKER_REQUEST_CODE_JSON = 0;
-    private int FILE_PICKER_REQUEST_CODE = 1;
-    private int FILE_PICKER_REQUEST_CODE_JPG = 2;
+    private final int FILE_PICKER_REQUEST_CODE_JSON = 0;
+    private final int FILE_PICKER_REQUEST_CODE_TFLITE = 1;
+    private final int FILE_PICKER_REQUEST_CODE_JPG = 2;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     public String modelName;
-    ArrayList<Model> models = new ArrayList<>();
+    private ArrayList<Model> models = new ArrayList<>();
     private int indexOfCurrentModel = 0;
     private Bitmap currentBitmap = null;
-    private ArrayAdapter<String> adapter;
-    private ListView list;
-    private ArrayList<String> arrayList;
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private ArrayAdapter<String> modelNamesAdapter;
+    private ArrayList<String> modelNamesList;
+    private Executor cameraExecutor = Executors.newSingleThreadExecutor();
     private JSONObject defaultManifest = null;
     private JSONObject manifestToLoad = null;
     private boolean useDefaultManifest = true;
     private View loadingView = null;
 
-    PreviewView mPreviewView;
+    PreviewView cameraPreviewView;
     Button cameraCaptureButton;
 
 
     public void startCamera(PreviewView pview, Button cameraCaptureButton) {
 
-        mPreviewView = pview;
+        cameraPreviewView = pview;
         this.cameraCaptureButton = cameraCaptureButton;
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
@@ -131,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
+    public void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
 
         Preview preview = new Preview.Builder()
                 .build();
@@ -158,13 +157,13 @@ public class MainActivity extends AppCompatActivity {
                 .setTargetResolution(new Size(214, 214))
                 .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
                 .build();
-        preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
+        preview.setSurfaceProvider(cameraPreviewView.createSurfaceProvider());
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageAnalysis, imageCapture);
 
         cameraCaptureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
+                imageCapture.takePicture(cameraExecutor, new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onCaptureSuccess(@NonNull ImageProxy image) {
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
@@ -172,13 +171,20 @@ public class MainActivity extends AppCompatActivity {
                         byte[] bytes = new byte[buffer.remaining()];
                         buffer.get(bytes);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
-                        currentBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, false);
-                        toResult();
+                        try {
+                            currentBitmap = Bitmap.createScaledBitmap(bitmap, models.get(indexOfCurrentModel).getFirstDim(), models.get(indexOfCurrentModel).getSecondDim(), false);
+                            toResult();
+                        }catch (ManifestException ex){
+                            ErrorFragment.setCurrentException(ex);
+                            toError();
+                        }
                         super.onCaptureSuccess(image);
                     }
 
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
+                        ErrorFragment.setCurrentException(exception);
+                        toError();
                         super.onError(exception);
                     }
                 });
@@ -186,18 +192,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void pick() {
+    public void loadModelFile() {
         new MaterialFilePicker()
                 .withActivity(this)
                 .withCloseMenu(true)
                 .withFilter(Pattern.compile(".*\\.(tflite)$"))
                 .withFilterDirectories(false)
                 .withTitle("Choose File to Import")
-                .withRequestCode(FILE_PICKER_REQUEST_CODE)
+                .withRequestCode(FILE_PICKER_REQUEST_CODE_TFLITE)
                 .start();
     }
 
-    public void loadManifest(View view) {
+    public void loadManifestFile(View view) {
         loadingView = view;
         new MaterialFilePicker()
                 .withActivity(this)
@@ -215,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(i, FILE_PICKER_REQUEST_CODE_JPG);
     }
 
-    static int[] indexesOfTopElements(float[] orig, int nummax) {
+    static private int[] getIndexesOfTopElements(float[] orig, int nummax) {
         float[] copy = Arrays.copyOf(orig, orig.length);
         Arrays.sort(copy);
         float[] honey = Arrays.copyOfRange(copy, copy.length - nummax, copy.length);
@@ -239,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void toResult() {
+    public void toResult() {
         MainActivity act = this;
 
         this.runOnUiThread(new Runnable() {
@@ -261,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public Bitmap getBitmapFromURL(String src) {
+    private Bitmap getBitmapFromURL(String src) {
         try {
             java.net.URL url = new java.net.URL(src);
             HttpURLConnection connection = (HttpURLConnection) url
@@ -279,7 +285,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void makePrediction() {
         try {
-
             Model model = models.get(indexOfCurrentModel);
             float[][] buf = new float[1][model.outputSize()];
             currentBitmap = Bitmap.createScaledBitmap(currentBitmap, model.getFirstDim(), model.getSecondDim(), false);
@@ -292,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                 model.getInterpreter().run(buffer, buf);
             }
 
-            int[] top = indexesOfTopElements(buf[0], 5);
+            int[] top = getIndexesOfTopElements(buf[0], 5);
             int[] images = new int[5];
             Drawable[] drawables = new Drawable[5];
             String[] labels = new String[5];
@@ -349,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == FILE_PICKER_REQUEST_CODE_TFLITE && resultCode == Activity.RESULT_OK) {
             try {
                 String path = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
                 if (manifestToLoad == null) {
@@ -390,13 +395,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void setUpSelection(View view) {
 
-        arrayList = new ArrayList<String>();
+        modelNamesList = new ArrayList<String>();
         for (Model model : models) {
-            arrayList.add(model.getModelName());
+            modelNamesList.add(model.getModelName());
         }
 
-        adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.spiner_item, arrayList);
-        ((ListView) view).setAdapter(adapter);
+        modelNamesAdapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.spiner_item, modelNamesList);
+        ((ListView) view).setAdapter(modelNamesAdapter);
     }
 
 
@@ -488,29 +493,8 @@ public class MainActivity extends AppCompatActivity {
         FileInputStream fis = null;
         fis = new FileInputStream(file);
         return fis.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
-
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            System.out.println("WEEEEEEEEEEEEEEE");
-            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.clear();
-            editor.commit();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -519,9 +503,7 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public void setCurrentBitmap(Bitmap currentBitmap) {
-        this.currentBitmap = currentBitmap;
-    }
+
 
 
     public void onCheckboxClicked(View view) {
@@ -537,10 +519,6 @@ public class MainActivity extends AppCompatActivity {
 
     public String getModelName() {
         return models.get(indexOfCurrentModel).getModelName();
-    }
-
-    public JSONObject getManifestToLoad() {
-        return manifestToLoad;
     }
 
 }

@@ -40,7 +40,7 @@ public class LoadModelFragment extends Fragment {
         binding.buttonManifest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).loadManifest(view);
+                ((MainActivity) getActivity()).loadManifestFile(view);
 
             }
         });
@@ -48,7 +48,7 @@ public class LoadModelFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ((MainActivity) getActivity()).modelName = String.valueOf(binding.editTextModelName.getText());
-                ((MainActivity) getActivity()).pick();
+                ((MainActivity) getActivity()).loadModelFile();
                 NavHostFragment.findNavController(LoadModelFragment.this)
                         .navigate(R.id.action_to_menu);
             }

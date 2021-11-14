@@ -23,6 +23,13 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -50,22 +57,24 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0-rc1'
     implementation 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
     implementation 'com.nbsp:materialfilepicker:1.9.1'
-    implementation 'com.adityak:browsemyfiles:1.9'
     implementation 'com.android.support:recyclerview-v7'
     implementation 'com.github.jama5262:CarouselView:1.2.2'
     implementation 'com.synnapps:carouselview:0.1.4'
     implementation 'androidx.viewpager:viewpager:1.0.0'
     implementation 'com.google.guava:guava:31.0.1-android'
     implementation 'org.apache.commons:commons-lang3:3.6'
-    testImplementation 'junit:junit:4.+'
-    implementation group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
+    implementation 'commons-io:commons-io:2.11.0'
+    testImplementation 'junit:junit:4.10'
+    testImplementation files('libs/json.jar')
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+
 
 
 
     def camerax_version = "1.0.0-beta05"
-    implementation "androidx.camera:camera-camera2:${camerax_version}"
+    //implementation "androidx.camera:camera-camera2:${camerax_version}"
     implementation "androidx.camera:camera-lifecycle:${camerax_version}"
     implementation"androidx.camera:camera-view:1.0.0-alpha12"
     implementation "androidx.camera:camera-extensions:1.0.0-alpha12"

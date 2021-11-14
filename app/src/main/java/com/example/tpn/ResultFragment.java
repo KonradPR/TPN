@@ -14,8 +14,8 @@ import com.example.tpn.databinding.ResultFragmentBinding;
 public class ResultFragment extends Fragment {
 
     private ResultFragmentBinding binding;
-    ViewPager viewPager;
-    CustomSwipeAdapter adapter;
+    private ViewPager viewPager;
+    private CustomSwipeAdapter adapter;
 
 
     @Override

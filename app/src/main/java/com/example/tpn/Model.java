@@ -83,6 +83,15 @@ public class Model {
         }
     }
 
+    public String outputType() throws ManifestException{
+        try {
+            System.out.println(manifest.getString("output_type"));
+            return manifest.getString("input_type");
+        } catch (JSONException ex) {
+            throw new ManifestException("There was an error getting input type from manifest");
+        }
+    }
+
 
     public int outputSize() throws ManifestException {
         try {
