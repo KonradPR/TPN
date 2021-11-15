@@ -35,8 +35,11 @@ public class ErrorFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.textView.setText(currentException.getMessage());
+        currentException.printStackTrace();
         if (isCritical) {
             binding.textView2.setVisibility(View.VISIBLE);
+        }else{
+            binding.textView2.setVisibility(View.GONE);
         }
     }
 
@@ -54,6 +57,8 @@ public class ErrorFragment extends Fragment {
     }
 
     public static void notifyCriticalError() {
+
+        System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
         isCritical = true;
     }
 

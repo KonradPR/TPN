@@ -124,7 +124,11 @@ public class ManifestParser {
             if (!ManifestParser.validateManifest(manifest))
                 throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
             return manifest;
-        } catch (Exception ex) {
+        }catch (ManifestException ex){
+            throw new ManifestException("The manifest You are trying to load doesn't follow required format!");
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
             throw new ManifestException("There was an error loading model's manifest");
         }
     }
