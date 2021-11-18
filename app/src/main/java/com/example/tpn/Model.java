@@ -12,8 +12,8 @@ public class Model {
     private JSONObject manifest;
 
     public Model(MappedByteBuffer mappedByteBuffer, String modelName, JSONObject manifest) {
+        if(mappedByteBuffer!=null)interpreter = new Interpreter(mappedByteBuffer);
         this.modelName = modelName;
-        interpreter = new Interpreter(mappedByteBuffer);
         this.manifest = manifest;
     }
 
@@ -85,8 +85,7 @@ public class Model {
 
     public String outputType() throws ManifestException{
         try {
-            System.out.println(manifest.getString("output_type"));
-            return manifest.getString("input_type");
+            return manifest.getString("output_type");
         } catch (JSONException ex) {
             throw new ManifestException("There was an error getting input type from manifest");
         }
